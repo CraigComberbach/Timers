@@ -19,6 +19,9 @@ enum TIMERS
 /***********State Machine Definitions************/
 /*************Function  Prototypes***************/
 int Initialize_TMR1(int TCKPS, void (*interruptFunction)(void));
+int Initialize_TMR2(int TCKPS, void (*interruptFunction)(void));
+int Initialize_TMR3(int TCKPS, void (*interruptFunction)(void));
+int Initialize_TMR4(int TCKPS, void (*interruptFunction)(void));
 
 #endif	/* TIMERS_H */
 
