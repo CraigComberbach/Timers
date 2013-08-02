@@ -15,20 +15,24 @@
 #define OPEN_DRAIN	1
 
 /*************    Enumeration     ***************/
+/**
+ * Add the names of the pins here. Enumeration starts with Port A Pin 0 and increments from there.
+ * The numbers assume each port has 16 pins (most don't) and that there are no skipped ports (A, then B, then C, etc)
+ */
 enum PIN_NAMES
 {
-	ra0 = 0,
-	ra1 = 1,
-	ra2 = 2,
-	ra3 = 3,
-	ra4 = 4,
-	ra5 = 5,
-	ra6 = 6,
-	rb4 = 20,
-	rb8 = 24,
-	rb9 = 25,
-	rb14 = 30,
-	rb15 = 31,
+	ra0 = 0,	//RA0
+	ra1 = 1,	//RA1
+	ra2 = 2,	//RA2
+	ra3 = 3,	//RA3
+	ra4 = 4,	//RA4
+	ra5 = 5,	//RA5
+	ra6 = 6,	//RA6
+	rb4 = 20,	//RB4
+	rb8 = 24,	//RB8
+	rb9 = 25,	//RB9
+	rb14 = 30,	//RB14
+	rb15 = 31,	//RB15
 };
 
 /***********State Machine Definitions************/
