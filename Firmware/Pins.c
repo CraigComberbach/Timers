@@ -58,7 +58,7 @@ enum
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
 
-int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
+int Initialize_Pin(enum PIN_NAMES pinName, int latch, int odc, int tris)
 {
 	int port, pin;
 
@@ -67,11 +67,11 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 	pin = pinName % 16;
 
 	//Range checking
-	if((latch != 0) && (latch != 1))
+	if((latch != LOW) && (latch != HIGH))
 		return 0;
-	if((tris != 0) && (tris != 1))
+	if((tris != OUTPUT) && (tris != INPUT))
 		return 0;
-	if((openDrain != 0) && (openDrain != 1))
+	if((odc != PUSH_PULL) && (odc != OPEN_DRAIN))
 		return 0;
 
 	//Now that we are through the gauntlet, it's time for assignment
@@ -83,7 +83,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx0:
 					#if defined __PIC24F08KL200__
 						LATAbits.LATA0 = latch;
-						ODCAbits.ODA0 = openDrain;
+						ODCAbits.ODA0 = odc;
 						TRISAbits.TRISA0 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -92,7 +92,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx1:
 					#if defined __PIC24F08KL200__
 						LATAbits.LATA1 = latch;
-						ODCAbits.ODA1 = openDrain;
+						ODCAbits.ODA1 = odc;
 						TRISAbits.TRISA1 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -101,7 +101,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx2:
 					#if defined __PIC24F08KL200__
 						LATAbits.LATA2 = latch;
-						ODCAbits.ODA2 = openDrain;
+						ODCAbits.ODA2 = odc;
 						TRISAbits.TRISA2 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -110,7 +110,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx3:
 					#if defined __PIC24F08KL200__
 						LATAbits.LATA3 = latch;
-						ODCAbits.ODA3 = openDrain;
+						ODCAbits.ODA3 = odc;
 						TRISAbits.TRISA3 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -119,7 +119,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx4:
 					#if defined __PIC24F08KL200__
 						LATAbits.LATA4 = latch;
-						ODCAbits.ODA4 = openDrain;
+						ODCAbits.ODA4 = odc;
 						TRISAbits.TRISA4 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -128,7 +128,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx5:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA5 = latch;
-						ODCAbits.ODA5 = openDrain;
+						ODCAbits.ODA5 = odc;
 						TRISAbits.TRISA5 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -137,7 +137,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx6:
 					#if defined __PIC24F08KL200__
 						LATAbits.LATA6 = latch;
-						ODCAbits.ODA6 = openDrain;
+						ODCAbits.ODA6 = odc;
 						TRISAbits.TRISA6 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -146,7 +146,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx7:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA7 = latch;
-						ODCAbits.ODA7 = openDrain;
+						ODCAbits.ODA7 = odc;
 						TRISAbits.TRISA7 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -155,7 +155,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx8:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA8 = latch;
-						ODCAbits.ODA8 = openDrain;
+						ODCAbits.ODA8 = odc;
 						TRISAbits.TRISA8 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -164,7 +164,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx9:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA9 = latch;
-						ODCAbits.ODA9 = openDrain;
+						ODCAbits.ODA9 = odc;
 						TRISAbits.TRISA9 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -173,7 +173,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx10:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA10 = latch;
-						ODCAbits.ODA10 = openDrain;
+						ODCAbits.ODA10 = odc;
 						TRISAbits.TRISA10 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -182,7 +182,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx11:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA11 = latch;
-						ODCAbits.ODA11 = openDrain;
+						ODCAbits.ODA11 = odc;
 						TRISAbits.TRISA11 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -191,7 +191,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx12:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA12 = latch;
-						ODCAbits.ODA12 = openDrain;
+						ODCAbits.ODA12 = odc;
 						TRISAbits.TRISA12 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -200,7 +200,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx13:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA13 = latch;
-						ODCAbits.ODA13 = openDrain;
+						ODCAbits.ODA13 = odc;
 						TRISAbits.TRISA13 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -209,7 +209,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx14:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA14 = latch;
-						ODCAbits.ODA14 = openDrain;
+						ODCAbits.ODA14 = odc;
 						TRISAbits.TRISA14 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -218,7 +218,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx15:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATAbits.LATA15 = latch;
-						ODCAbits.ODA15 = openDrain;
+						ODCAbits.ODA15 = odc;
 						TRISAbits.TRISA15 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -234,7 +234,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx0:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB0 = latch;
-						ODCBbits.ODB0 = openDrain;
+						ODCBbits.ODB0 = odc;
 						TRISBbits.TRISB0 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -243,7 +243,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx1:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB1 = latch;
-						ODCBbits.ODB1 = openDrain;
+						ODCBbits.ODB1 = odc;
 						TRISBbits.TRISB1 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -252,7 +252,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx2:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB2 = latch;
-						ODCBbits.ODB2 = openDrain;
+						ODCBbits.ODB2 = odc;
 						TRISBbits.TRISB2 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -261,7 +261,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx3:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB3 = latch;
-						ODCBbits.ODB3 = openDrain;
+						ODCBbits.ODB3 = odc;
 						TRISBbits.TRISB3 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -270,7 +270,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx4:
 					#if defined __PIC24F08KL200__
 						LATBbits.LATB4 = latch;
-						ODCBbits.ODB4 = openDrain;
+						ODCBbits.ODB4 = odc;
 						TRISBbits.TRISB4 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -279,7 +279,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx5:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB5 = latch;
-						ODCBbits.ODB5 = openDrain;
+						ODCBbits.ODB5 = odc;
 						TRISBbits.TRISB5 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -288,7 +288,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx6:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB6 = latch;
-						ODCBbits.ODB6 = openDrain;
+						ODCBbits.ODB6 = odc;
 						TRISBbits.TRISB6 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -297,7 +297,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx7:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB7 = latch;
-						ODCBbits.ODB7 = openDrain;
+						ODCBbits.ODB7 = odc;
 						TRISBbits.TRISB7 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -306,7 +306,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx8:
 					#if defined __PIC24F08KL200__
 						LATBbits.LATB8 = latch;
-						ODCBbits.ODB8 = openDrain;
+						ODCBbits.ODB8 = odc;
 						TRISBbits.TRISB8 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -315,7 +315,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx9:
 					#if defined __PIC24F08KL200__
 						LATBbits.LATB9 = latch;
-						ODCBbits.ODB9 = openDrain;
+						ODCBbits.ODB9 = odc;
 						TRISBbits.TRISB9 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -324,7 +324,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx10:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB10 = latch;
-						ODCBbits.ODB10 = openDrain;
+						ODCBbits.ODB10 = odc;
 						TRISBbits.TRISB10 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -333,7 +333,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx11:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB11 = latch;
-						ODCBbits.ODB11 = openDrain;
+						ODCBbits.ODB11 = odc;
 						TRISBbits.TRISB11 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -342,7 +342,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx12:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB12 = latch;
-						ODCBbits.ODB12 = openDrain;
+						ODCBbits.ODB12 = odc;
 						TRISBbits.TRISB12 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -351,7 +351,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx13:
 					#if defined PLACE_MICROCHIP_PART_NAME_HERE
 						LATBbits.LATB13 = latch;
-						ODCBbits.ODB13 = openDrain;
+						ODCBbits.ODB13 = odc;
 						TRISBbits.TRISB13 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -360,7 +360,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx14:
 					#if defined __PIC24F08KL200__
 						LATBbits.LATB14 = latch;
-						ODCBbits.ODB14 = openDrain;
+						ODCBbits.ODB14 = odc;
 						TRISBbits.TRISB14 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
@@ -369,7 +369,7 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 				case Rx15:
 					#if defined __PIC24F08KL200__
 						LATBbits.LATB15 = latch;
-						ODCBbits.ODB15 = openDrain;
+						ODCBbits.ODB15 = odc;
 						TRISBbits.TRISB15 = tris;
 						return 1;//This pin exists and the change was successful
 					#else
