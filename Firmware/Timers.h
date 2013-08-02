@@ -8,8 +8,17 @@
 
 /*************   Magic  Numbers   ***************/
 /*************    Enumeration     ***************/
+enum TIMERS
+{
+	TIMER1,	//TMR1
+	TIMER2,	//TMR2
+	TIMER3,	//TMR3
+	TIMER4	//TMR4
+};
+
 /***********State Machine Definitions************/
 /*************Function  Prototypes***************/
+int Initialize_TMR1(int TCKPS, void (*interruptFunction)(void));
 
 #endif	/* TIMERS_H */
 
