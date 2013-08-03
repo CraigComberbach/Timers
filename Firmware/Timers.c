@@ -46,15 +46,14 @@ int Initialize_TMR1(int prescale, void (*interruptFunction)(void))
 //		T1CONbits.T1ECS	=			//Not valid because TCS = 0
 		T1CONbits.TSIDL	= 0;		//0 = Continue module operation in Idle mode
 		T1CONbits.TON	= 1;		//1 = Starts 16-bit Timer1
+	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+		return 0;//Timer2 does not exist on this chip, as such, this function call has failed
 	#else
 		#warning "This timer1 is not setup for this chip"
 	#endif
 
 	//Setup the function to call in the interrupt routine
-	if(TMR1_interruptFunction)//Check for Null pointer
-		TMR1_interruptFunction = interruptFunction;//It is valid
-	else
-		return 0;//It is a null pointer, we have failed
+	TMR1_interruptFunction = interruptFunction;//It is valid
 
 	//Success
 	return 1;
@@ -67,24 +66,33 @@ int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void)
 		T2CONbits.T2OUTPS	= postscale;//Timer2 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
 		T2CONbits.T2CKPS	= prescale;	//Timer2 Clock Prescale Select bits (0 = 1:1, 1 = 1:4, 2 = 1:16, 3 = Undefined)
 		T2CONbits.TON		= 1;		//1 = Timer2 is on
+	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+		return 0;//Timer2 does not exist on this chip, as such, this function call has failed
 	#else
 		#warning "This timer1 is not setup for this chip"
 	#endif
 
 	//Setup the function to call in the interrupt routine
-	if(TMR2_interruptFunction)//Check for Null pointer
-		TMR2_interruptFunction = interruptFunction;//It is valid
-	else
-		return 0;//It is a null pointer, we have failed
+	TMR2_interruptFunction = interruptFunction;
 
 	//Success
 	return 1;
 }
 
-int Initialize_TMR3(void)
+int Initialize_TMR3(void (*interruptFunction)(void))
 {
-	//TODO - Write TMR3 Initialize
-	return;
+	#if defined __PIC24F08KL200__
+	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+		return 0;//Timer3 does not exist on this chip, as such, this function call has failed
+	#else
+		#warning "This timer1 is not setup for this chip"
+	#endif
+
+	//Setup the function to call in the interrupt routine
+	TMR3_interruptFunction = interruptFunction;
+
+	//Success
+	return 1;
 }
 
 int Initialize_TMR4(int prescale, int postscale, void (*interruptFunction)(void))
@@ -101,10 +109,7 @@ int Initialize_TMR4(int prescale, int postscale, void (*interruptFunction)(void)
 	#endif
 
 	//Setup the function to call in the interrupt routine
-	if(TMR4_interruptFunction)//Check for Null pointer
-		TMR4_interruptFunction = interruptFunction;//It is valid
-	else
-		return 0;//It is a null pointer, we have failed
+	TMR4_interruptFunction = interruptFunction;
 
 	//Success
 	return 1;
@@ -114,7 +119,6 @@ int Initialize_TMR4(int prescale, int postscale, void (*interruptFunction)(void)
  TODO - Create functions to Set PR1/2/3/4
  TODO - Create functions to turn On/Off each timer
  TODO - Add to each timer the control bits to enable interrupts if they are nessecary
- TODO - Should I allow sending a null pointer in the event that the timer is used for timing and will never expire (Wheel spinning functionality)
  */
 
 void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
