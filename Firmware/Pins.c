@@ -379,7 +379,6 @@ int Initialize_Pin(enum PIN_NAMES pinName, int latch, int openDrain, int tris)
 					return 0;//Only a math error can get to here
 			}
 			return 0;//How did I get here?
-
 		default:
 			return 0;//Port does not exist
 	}

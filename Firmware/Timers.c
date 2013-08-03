@@ -37,12 +37,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 
 int Initialize_TMR1(int prescale, void (*interruptFunction)(void))
 {
-	//Setup the function to call in the interrupt routine
-	if(TMR1_interruptFunction)//Check for Null pointer
-		TMR1_interruptFunction = interruptFunction;//It is valid
-	else
-		return 0;//It is a null pointer, we have failed
-
 	#if defined __PIC24F08KL200__
 		//Timer1 Control Register
 		T1CONbits.TCS	= 0;		//0 = Internal clock (FOSC/2)
@@ -56,18 +50,18 @@ int Initialize_TMR1(int prescale, void (*interruptFunction)(void))
 		#warning "This timer1 is not setup for this chip"
 	#endif
 
-	//Success
-	return 1;
-}
-
-int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void))
-{
 	//Setup the function to call in the interrupt routine
 	if(TMR1_interruptFunction)//Check for Null pointer
 		TMR1_interruptFunction = interruptFunction;//It is valid
 	else
 		return 0;//It is a null pointer, we have failed
 
+	//Success
+	return 1;
+}
+
+int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void))
+{
 	#if defined __PIC24F08KL200__
 		//Timer2 Control Register
 		T2CONbits.T2OUTPS	= postscale;//Timer2 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
@@ -77,26 +71,50 @@ int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void)
 		#warning "This timer1 is not setup for this chip"
 	#endif
 
+	//Setup the function to call in the interrupt routine
+	if(TMR2_interruptFunction)//Check for Null pointer
+		TMR2_interruptFunction = interruptFunction;//It is valid
+	else
+		return 0;//It is a null pointer, we have failed
+
 	//Success
 	return 1;
 }
 
-void Initialize_TMR3(void)
+int Initialize_TMR3(void)
 {
 	//TODO - Write TMR3 Initialize
 	return;
 }
 
-void Initialize_TMR4(void)
+int Initialize_TMR4(int prescale, int postscale, void (*interruptFunction)(void))
 {
-	//TODO - Write TMR4 Initialize
-	return;
+	#if defined __PIC24F08KL200__
+		return 0;//Timer4 does not exist on this chip, as such, this function call has failed
+	#elif define PLACE_MICROCHIP_PART_NAME_HERE
+		//Timer4 Control Register
+		T4CONbits.T4OUTPS	= postscale;//Timer4 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
+		T4CONbits.T4CKPS	= prescale;	//Timer4 Clock Prescale Select bits (0 = 1:1, 1 = 1:4, 2 = 1:16, 3 = Undefined)
+		T4CONbits.TON		= 1;		//1 = Timer4 is on
+	#else
+		#warning "This timer1 is not setup for this chip"
+	#endif
+
+	//Setup the function to call in the interrupt routine
+	if(TMR4_interruptFunction)//Check for Null pointer
+		TMR4_interruptFunction = interruptFunction;//It is valid
+	else
+		return 0;//It is a null pointer, we have failed
+
+	//Success
+	return 1;
 }
 
 /*
  TODO - Create functions to Set PR1/2/3/4
  TODO - Create functions to turn On/Off each timer
- TODO - Add functionality to turn on/off the timer interrupts (Maybe have two initializations, one is as above, the other is Initialize_TMR1_Without_Interrupt or some non-such as that)
+ TODO - Add to each timer the control bits to enable interrupts if they are nessecary
+ TODO - Should I allow sending a null pointer in the event that the timer is used for timing and will never expire (Wheel spinning functionality)
  */
 
 void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
