@@ -12,6 +12,7 @@ v0.1.0	2013-08-08  Craig Comberbach
 		-Timer 3 is broken into two initializations, a gated and a standard function. I hope to combine these in the future
 	Interrupts are enabled and the function pointer are only set if the pointer sent is not a null pointer
 	Sentinels are setup to check the validity of the arguments sent to the initialize routines
+	Added PRx values to initialization, they are set to their default max (I want to handle them auto-magically along with pre/post scalers in the future
 v0.0.0	2013-07-20  Craig Comberbach
 	Compiler: C30 v3.31	IDE: MPLABx 1.80	Tool: RealICE	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
 	First version

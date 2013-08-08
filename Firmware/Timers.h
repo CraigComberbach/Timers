@@ -7,6 +7,8 @@
 #define TIMERS_PATCH	0
 
 /*************   Magic  Numbers   ***************/
+#define NO_TIMER_INTERRUPT	(void*)0
+
 /*************    Enumeration     ***************/
 /***********State Machine Definitions************/
 /*************Function  Prototypes***************/
