@@ -79,9 +79,25 @@ int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void)
 	return 1;
 }
 
-int Initialize_TMR3(void (*interruptFunction)(void))
+int Initialize_TMR3_As_Gated_Timer(int prescale, void (*interruptFunction)(void))
 {
 	#if defined __PIC24F08KL200__
+		//Timer3 Gate Control Register
+		//Note it is recommended in the spec sheet to intialize this register before T3CON
+		T3GCONbits.TMR3GE		= 0;	//Default: If TMR3ON = 0, this bit is enabled
+		T3GCONbits.T3GPOL		= 0;	//Default: 0 = Timer gate is active-low (Timer3 counts when the gate is low)
+		T3GCONbits.T3GTM		= 0;	//Default: 0 = Timer Gate Toggle mode is disabled and toggle flip-flop is cleared
+		T3GCONbits.T3GSPM		= 0;	//Default: 0 = Timer Gate Single Pulse mode is disabled
+		T3GCONbits.T3GGO		= 0;	//Default: 0 = Timer gate single pulse acquisition has completed or has not been started
+//		T3GCONbits.T3GVAL				//Timer Gate Current State bit
+		T3GCONbits.T3GSS		= 0;	//Default: Timer Gate Source Select bits (0 = T3G input pin, 1 = TMR2 to match PR2 output, 2 = Comparator 1 output, 3 = Comparator 2 output)
+
+		//Timer3 Control Register
+		T3CONbits.TMR3CS		= 1;		//Clock Source Select bits, 1 = Instruction Clock (Fosc/2)
+		T3CONbits.T3CKPS		= prescale;	//Timer3 Input Clock Prescale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:4, 3 = 1:8)
+		T3CONbits.T3OSCEN		= 1;		//SOSC (Secondary Oscillator) is used as a clock source
+//		T3CONbits.NOT_T3SYNC	=			//When TMR3CS = 0x: This bit is ignored; Timer3 uses the internal clock.
+		T3CONbits.TMR3ON		= 1;		//1 = Enables Timer
 	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
 		return 0;//Timer3 does not exist on this chip, as such, this function call has failed
 	#else

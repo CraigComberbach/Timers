@@ -44,7 +44,7 @@ int Initialize_TMR1(int prescale, void (*interruptFunction)(void));
  */
 int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void));
 
-int Initialize_TMR3(void (*interruptFunction)(void));
+int Initialize_TMR3_As_Gated_Timer(void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 4
