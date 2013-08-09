@@ -10,21 +10,27 @@
 #define NO_TIMER_INTERRUPT	(void*)0
 
 /*************    Enumeration     ***************/
+enum TIMER_UNITS
+{
+	SECONDS,
+	MILLI_SECONDS,
+	MICRO_SECONDS,
+	NANO_SECONDS,
+	TICKS
+};
+
 /***********State Machine Definitions************/
 /*************Function  Prototypes***************/
 /**
  * Initializes Timer 1
- * @param prescale Clock prescaler\
- * 0 = 1:1\
- * 1 = 1:8\
- * 2 = 1:64\
- * 3 = 1:256\
+ * @param time The length of time it takes the timer to expire (0-999)
+ * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
  * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR1(int prescale, void (*interruptFunction)(void));
+int Initialize_TMR1(int time, int units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 2

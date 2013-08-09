@@ -47,15 +47,67 @@ void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
 
-int Initialize_TMR1(int prescale, void (*interruptFunction)(void))
+int Initialize_TMR1(int time, int units, void (*interruptFunction)(void))
 {
+	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
+	long targetTime;
+	int periodRegister;
+	int prescale;
+
 	//Range checking
-	if((prescale < 0) || (prescale > 3))
+	if((time < 0) || (time > 999))
 		return 0;//Out of range
+
+	//Determine what the prescale and period register should be
+	switch(units)
+	{
+		case SECONDS:
+			targetTime = time * 1000000000;//Change to the appropriate resolution
+			break;
+		case MILLI_SECONDS:
+			targetTime = time * 1000000;//Change to the appropriate resolution
+			break;
+		case MICRO_SECONDS:
+			targetTime = time * 1000;//Change to the appropriate resolution
+			break;
+		case NANO_SECONDS:
+			targetTime = time * 1;//Change to the appropriate resolution
+			break;
+		case TICKS:
+			targetTime = time;//Change to the appropriate resolution
+			break;
+		default:
+			return 0;//Invalid units
+	}
+
+	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
+	prescale = time / (0xFFFF * minPeriod_nS);
+	if(prescale == 0)
+	{
+		prescale = 0;//1:1
+		periodRegister = time / (1 * minPeriod_nS);
+	}
+	else if((prescale > 0) && (prescale <= 8))
+	{
+		prescale = 1;//1:8
+		periodRegister = time / (8 * minPeriod_nS);
+	}
+	else if((prescale > 8) && (prescale <= 64))
+	{
+		prescale = 2;//1:64
+		periodRegister = time / (64 * minPeriod_nS);
+	}
+	else if((prescale > 64) && (prescale <= 256))
+	{
+		prescale = 3;//1:256
+		periodRegister = time / (256 * minPeriod_nS);
+	}
+	else
+		return 0;//Out of range with a maxed out prescalar AND period register
 
 	#if defined __PIC24F08KL200__
 		//Timer1 Period Register
-		PR1 = 0xFFFF;				//Default: 0xFFFF is the maximum countable range of Timer1
+		PR1 = periodRegister;		//The value to trigger an interrupt at
 
 		//Timer1 Control Register
 		T1CONbits.TCS	= 0;		//0 = Internal clock (FOSC/2)
