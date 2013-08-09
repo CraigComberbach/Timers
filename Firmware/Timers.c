@@ -6,6 +6,11 @@ Code assumptions:
 Purpose:				Allow access and control over the available timers. This includes handling intialization, temporary disabling/reenabling, interrupt control, and any other functionality
 
 Version History:
+v0.2.0	2013-08-08  Craig Comberbach
+	Compiler: C30 v3.31	IDE: MPLABx 1.85	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 7 64 bit Home Premium SP1
+	Prescaler, Postscaler and Period Registers are all handled auto-magically on Timers 1/2/3/4
+		-This requires knowledge of the speed of the system clock (FOSC)
+		-The code optimizes for a period register that has the finest resolution
 v0.1.0	2013-08-08  Craig Comberbach
 	Compiler: C30 v3.31	IDE: MPLABx 1.85	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 7 64 bit Home Premium SP1
 	Timers 1-4 initialization and interrupts are implemented for the PIC24F08KL200 chip
@@ -18,9 +23,9 @@ v0.0.0	2013-07-20  Craig Comberbach
 	First version
 **************************************************************************************************/
 /*************    Future  Work    ***************/
-//TODO - Create functions to Set PR1/2/4
+//TODO - Create functions to Set PR1/2/4 on the fly - I can probably functionalize the existing code for auto-magic setting
 //TODO - Create functions to turn On/Off each timer
-//TODO - Add to Project Setup.h a clock frequency definition to eliminate the need for setting pre/post scalers. This would require an argument asking the duration devision (S, mS, uS, ticks, etc) and a time
+//TODO -
 
 /*************    Header Files    ***************/
 #include "Project Setup.h"
@@ -221,11 +226,47 @@ int Initialize_TMR2(int time, int units, void (*interruptFunction)(void))
 	return 1;
 }
 
-int Initialize_TMR3_As_Timer(int prescale, void (*interruptFunction)(void))
+int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void))
 {
-	//Range checking
-	if((prescale < 0) || (prescale > 3))
-		return 0;//Out of range
+	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
+	long targetTime;
+	int prescale;
+
+	//Determine what the prescale and period register should be
+	switch(units)
+	{
+		case SECONDS:
+			targetTime = time * 1000000000;//Change to the appropriate resolution
+			break;
+		case MILLI_SECONDS:
+			targetTime = time * 1000000;//Change to the appropriate resolution
+			break;
+		case MICRO_SECONDS:
+			targetTime = time * 1000;//Change to the appropriate resolution
+			break;
+		case NANO_SECONDS:
+			targetTime = time * 1;//Change to the appropriate resolution
+			break;
+		case TICKS:
+			targetTime = time;//Change to the appropriate resolution
+			break;
+		default:
+			return 0;//Invalid units
+	}
+
+	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
+	prescale = time;			//Assign time to beat
+	prescale /= minPeriod_nS;	//Divide by the minimum period
+	if(prescale == 0)
+		prescale = 0;//1:1
+	else if((prescale > 0) && (prescale <= 8))
+		prescale = 1;//1:8
+	else if((prescale > 8) && (prescale <= 64))
+		prescale = 2;//1:64
+	else if((prescale > 64) && (prescale <= 256))
+		prescale = 3;//1:256
+	else
+		return 0;//Out of range with a maxed out prescalar AND period register
 
 	#if defined __PIC24F08KL200__
 		//Timer3 Gate Control Register
@@ -261,17 +302,54 @@ int Initialize_TMR3_As_Timer(int prescale, void (*interruptFunction)(void))
 	return 1;
 }
 
-int Initialize_TMR3_As_Gated_Timer(int prescale, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
+int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
 {
 	//Range checking
-	if((prescale < 0) || (prescale > 3))
-		return 0;//Out of range
 	if((gateSource < 0) || (gateSource > 3))
 		return 0;//Out of range
 	if((mode < 0) || (mode > 1))
 		return 0;//Out of range
 	if((triggerPolarity < 0) || (triggerPolarity > 1))
 		return 0;//Out of range
+	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
+	long targetTime;
+	int prescale;
+
+	//Determine what the prescale and period register should be
+	switch(units)
+	{
+		case SECONDS:
+			targetTime = time * 1000000000;//Change to the appropriate resolution
+			break;
+		case MILLI_SECONDS:
+			targetTime = time * 1000000;//Change to the appropriate resolution
+			break;
+		case MICRO_SECONDS:
+			targetTime = time * 1000;//Change to the appropriate resolution
+			break;
+		case NANO_SECONDS:
+			targetTime = time * 1;//Change to the appropriate resolution
+			break;
+		case TICKS:
+			targetTime = time;//Change to the appropriate resolution
+			break;
+		default:
+			return 0;//Invalid units
+	}
+
+	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
+	prescale = time;			//Assign time to beat
+	prescale /= minPeriod_nS;	//Divide by the minimum period
+	if(prescale == 0)
+		prescale = 0;//1:1
+	else if((prescale > 0) && (prescale <= 8))
+		prescale = 1;//1:8
+	else if((prescale > 8) && (prescale <= 64))
+		prescale = 2;//1:64
+	else if((prescale > 64) && (prescale <= 256))
+		prescale = 3;//1:256
+	else
+		return 0;//Out of range with a maxed out prescalar AND period register
 
 	#if defined __PIC24F08KL200__
 		//Timer3 Gate Control Register

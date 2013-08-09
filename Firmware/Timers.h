@@ -3,7 +3,7 @@
 
 /************* Semantic Versioning***************/
 #define TIMERS_MAJOR	0
-#define TIMERS_MINOR	1
+#define TIMERS_MINOR	2
 #define TIMERS_PATCH	0
 
 /*************   Magic  Numbers   ***************/
@@ -45,25 +45,19 @@ int Initialize_TMR2(int time, int units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a standard timer
- * @param prescale Clock prescaler\
- * 0 = 1:1\
- * 1 = 1:2\
- * 2 = 1:4\
- * 3 = 1:8
+ * @param time The length of time it takes the timer to expire
+ * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
  * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR3_As_Timer(int prescale, void (*interruptFunction)(void));
+int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a gated timer
- * @param prescale Clock prescaler\
- * 0 = 1:1\
- * 1 = 1:2\
- * 2 = 1:4\
- * 3 = 1:8
+ * @param time The length of time it takes the timer to expire
+ * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param gateSource What source causes the gate to open and close\
  * 0 = T3G input pin\
  * 1 = TMR2 to match PR2 output\
@@ -80,7 +74,7 @@ int Initialize_TMR3_As_Timer(int prescale, void (*interruptFunction)(void));
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR3_As_Gated_Timer(int prescale, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
+int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
 
 
 /**
