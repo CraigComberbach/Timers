@@ -23,7 +23,7 @@ enum TIMER_UNITS
 /*************Function  Prototypes***************/
 /**
  * Initializes Timer 1
- * @param time The length of time it takes the timer to expire (0-999)
+ * @param time The length of time it takes the timer to expire
  * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
  * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
@@ -34,23 +34,14 @@ int Initialize_TMR1(int time, int units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 2
- * @param prescale Clock prescaler\
- * 0 = 1:1\
- * 1 = 1:4\
- * 2 = 1:16\
- * 3 = Undefined
- * @param postscale Clock postscalar\
- * 0 = 1:1\
- * 1 = 1:2\
- * 2 = 1:3\
- * ...\
- * 15 = 1:16
+ * @param time The length of time it takes the timer to expire
+ * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
  * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR2(int prescale, int postscale, void (*interruptFunction)(void));
+int Initialize_TMR2(int time, int units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a standard timer
