@@ -85,22 +85,13 @@ int Initialize_TMR3_As_Gated_Timer(int prescale, int gateSource, int mode, int t
 
 /**
  * Initializes Timer 4
- * @param prescale Clock prescaler\
- * 0 = 1:1\
- * 1 = 1:4\
- * 2 = 1:16\
- * 3 = Undefined
- * @param postscale Clock postscalar\
- * 0 = 1:1\
- * 1 = 1:2\
- * 2 = 1:3\
- * ...\
- * 15 = 1:16
+ * @param time The length of time it takes the timer to expire
+ * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
  * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR4(int prescale, int postscale, void (*interruptFunction)(void));
+int Initialize_TMR4(int time, int units, void (*interruptFunction)(void));
 
 #endif	/* TIMERS_H */
