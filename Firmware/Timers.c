@@ -22,11 +22,6 @@ v0.0.0	2013-07-20  Craig Comberbach
 	Compiler: C30 v3.31	IDE: MPLABx 1.80	Tool: RealICE	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
 	First version
 **************************************************************************************************/
-/*************    Future  Work    ***************/
-//TODO - Create functions to Set PR1/2/4 on the fly - I can probably functionalize the existing code for auto-magic setting
-//TODO - Create functions to turn On/Off each timer
-//TODO -
-
 /*************    Header Files    ***************/
 #include "Project Setup.h"
 #include "Timers.h"
