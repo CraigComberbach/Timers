@@ -3,13 +3,32 @@
 
 /************* Semantic Versioning***************/
 #define TIMERS_MAJOR	0
-#define TIMERS_MINOR	2
+#define TIMERS_MINOR	3
 #define TIMERS_PATCH	0
 
 /*************   Magic  Numbers   ***************/
 #define NO_TIMER_INTERRUPT	(void*)0
+#define TIMER_ON	1
+#define TIMER_OFF	0
 
 /*************    Enumeration     ***************/
+enum TIMERS_AVAILABLE
+{
+#if defined __PIC24F08KL200__
+	TIMER1,
+	TIMER2,
+	TIMER3,
+#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+	TIMER1,
+	TIMER2,
+	TIMER3,
+	TIMER4,
+#else
+	#warning "This chip is not setup for timers yet"
+#endif
+	NUMBER_OF_AVAILABLE_TIMERS
+};
+
 enum TIMER_UNITS
 {
 	SECONDS,
@@ -87,5 +106,16 @@ int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
 int Initialize_TMR4(int time, int units, void (*interruptFunction)(void));
+
+/**
+ * This function will turn on or off a specified timer
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
+ * @param newState The state that the timer should be changed to\
+ * 1 = Enabled\
+ * 0 = Disabled
+ * @return 1 = The timer was succefully changed\
+ * 0 = Either the timer was out of range or the new state was invalid
+ */
+int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState);
 
 #endif	/* TIMERS_H */

@@ -6,6 +6,9 @@ Code assumptions:
 Purpose:				Allow access and control over the available timers. This includes handling intialization, temporary disabling/reenabling, interrupt control, and any other functionality
 
 Version History:
+v0.3.0	2013-08-13  Craig Comberbach
+	Compiler: C30 v3.31	IDE: MPLABx 1.80	Tool: RealICE	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
+	Added Change Timer Trigger function to allow the timer to be enabled/disabled on the fly
 v0.2.0	2013-08-08  Craig Comberbach
 	Compiler: C30 v3.31	IDE: MPLABx 1.85	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 7 64 bit Home Premium SP1
 	Prescaler, Postscaler and Period Registers are all handled auto-magically on Timers 1/2/3/4
@@ -446,7 +449,7 @@ int Initialize_TMR4(int time, int units, void (*interruptFunction)(void))
 
 	#if defined __PIC24F08KL200__
 		return 0;//Timer4 does not exist on this chip, as such, this function call has failed
-	#elif define PLACE_MICROCHIP_PART_NAME_HERE
+	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
 		//Timer4 Period Register
 		PR4 = periodRegister;			//The value to trigger an interrupt at
 
@@ -464,6 +467,42 @@ int Initialize_TMR4(int time, int units, void (*interruptFunction)(void))
 	#else
 		#warning "Timer4 is not setup for this chip"
 	#endif
+
+	//Success
+	return 1;
+}
+
+int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState)
+{
+	//Range check
+	if((timer < 0 ) || (timer >= NUMBER_OF_AVAILABLE_TIMERS))
+		return 0;//Out of range
+	if((newState != TIMER_ON) && (newState != TIMER_OFF))
+		return 0;//Out of range
+
+	switch(timer)
+	{
+		case 0:
+			T1CONbits.TON = newState;
+			break;
+		case 1:
+			T2CONbits.TON = newState;
+			break;
+		case 2:
+			T3CONbits.TMR3ON = newState;
+			break;
+		case 3:
+			#if defined __PIC24F08KL200__
+				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				T4CONbits.TON = newState;
+			#else
+				#warning "Timer4 is not setup for this chip"
+			#endif
+			break;
+		default:
+			return 0;//How did we get here?
+	}
 
 	//Success
 	return 1;
