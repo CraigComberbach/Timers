@@ -49,7 +49,7 @@ enum TIMER_UNITS
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR1(int time, int units, void (*interruptFunction)(void));
+int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 2
@@ -60,7 +60,7 @@ int Initialize_TMR1(int time, int units, void (*interruptFunction)(void));
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR2(int time, int units, void (*interruptFunction)(void));
+int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a standard timer
@@ -71,7 +71,7 @@ int Initialize_TMR2(int time, int units, void (*interruptFunction)(void));
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void));
+int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a gated timer
@@ -93,7 +93,7 @@ int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
+int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
 
 
 /**
@@ -105,7 +105,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR4(int time, int units, void (*interruptFunction)(void));
+int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
 
 /**
  * This function will turn on or off a specified timer
@@ -117,5 +117,13 @@ int Initialize_TMR4(int time, int units, void (*interruptFunction)(void));
  * 0 = Either the timer was out of range or the new state was invalid
  */
 int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState);
+
+/**
+ * Allows the reading of the timer value
+ * @param timer  The target timer, use the enum TIMERS_AVAILABLE
+ * @param timeUnits The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
+ * @return The current timer value in the units specified
+ */
+int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
 
 #endif	/* TIMERS_H */

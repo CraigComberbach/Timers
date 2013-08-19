@@ -50,7 +50,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
 
-int Initialize_TMR1(int time, int units, void (*interruptFunction)(void))
+int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
 	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
@@ -135,7 +135,7 @@ int Initialize_TMR1(int time, int units, void (*interruptFunction)(void))
 	return 1;
 }
 
-int Initialize_TMR2(int time, int units, void (*interruptFunction)(void))
+int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
 	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
@@ -224,7 +224,7 @@ int Initialize_TMR2(int time, int units, void (*interruptFunction)(void))
 	return 1;
 }
 
-int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void))
+int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
 	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
@@ -300,7 +300,7 @@ int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void
 	return 1;
 }
 
-int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
+int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
 {
 	//Range checking
 	if((gateSource < 0) || (gateSource > 3))
@@ -383,7 +383,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode
 	return 1;
 }
 
-int Initialize_TMR4(int time, int units, void (*interruptFunction)(void))
+int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
 	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
@@ -506,6 +506,41 @@ int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState)
 
 	//Success
 	return 1;
+}
+
+int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
+{
+	//Range check
+	if((timer < 0 ) || (timer >= NUMBER_OF_AVAILABLE_TIMERS))
+		return 0;//Out of range
+This needs to return a value in the specified time units
+	//Determine which timer to read
+	switch(timer)
+	{
+		case 0:
+			return TMR1;
+		case 1:
+			return TMR2;
+		case 2:
+			return TMR3;
+		case 3:
+			#if defined __PIC24F08KL200__
+				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				return TMR4;
+			#else
+				#warning "Timer4 is not setup for this chip"
+			#endif
+		default:
+			return 0;//How did we get here?
+	}
+
+	//No seriously, how did we get here!
+	return 0;
+}
+
+int Change_Timer_Time(int time, enum TIMER_UNITS units)
+{
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
