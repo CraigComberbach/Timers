@@ -32,6 +32,8 @@ v0.0.0	2013-07-20  Craig Comberbach
 /************* Semantic Versioning***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
+#define MIN_PERIOD_NS (1000000000/(FOSC_HZ/2))	//Period of the instruction clock pulse in nanoseconds
+
 /*************    Enumeration     ***************/
 /***********State Machine Definitions*************/
 /*************  Global Variables  ***************/
@@ -52,7 +54,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 
 int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
-	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
 	int periodRegister;
 	int prescale;
@@ -82,26 +83,26 @@ int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
 	prescale = time;			//Assign time to beat
 	prescale /= 0xFF;			//Divide by a maxed out period register
-	prescale /= minPeriod_nS;	//Divide by the minimum period
+	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 	{
 		prescale = 0;//1:1
-		periodRegister = time / (1 * minPeriod_nS);
+		periodRegister = time / (1 * MIN_PERIOD_NS);
 	}
 	else if((prescale > 0) && (prescale <= 8))
 	{
 		prescale = 1;//1:8
-		periodRegister = time / (8 * minPeriod_nS);
+		periodRegister = time / (8 * MIN_PERIOD_NS);
 	}
 	else if((prescale > 8) && (prescale <= 64))
 	{
 		prescale = 2;//1:64
-		periodRegister = time / (64 * minPeriod_nS);
+		periodRegister = time / (64 * MIN_PERIOD_NS);
 	}
 	else if((prescale > 64) && (prescale <= 256))
 	{
 		prescale = 3;//1:256
-		periodRegister = time / (256 * minPeriod_nS);
+		periodRegister = time / (256 * MIN_PERIOD_NS);
 	}
 	else
 		return 0;//Out of range with a maxed out prescalar AND period register
@@ -137,7 +138,6 @@ int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 
 int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
-	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
 	int periodRegister;
 	int prescale;
@@ -169,7 +169,7 @@ int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	postscale = time;			//Assign time to beat
 	postscale /= 0xFF;			//Divide by a maxed out period register
 	postscale /= 16;			//Divide by a maxed out prescaler
-	postscale /= minPeriod_nS;	//Divide by the minimum period
+	postscale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	postscale++;				//Add one to get the correct post scalar
 
 	//Range check
@@ -179,22 +179,22 @@ int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
 	prescale = time;			//Assign time to beat
 	prescale /= 0xFF;			//Divide by a maxed out period register
-	prescale /= minPeriod_nS;	//Divide by the minimum period
+	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	prescale /= postscale;		//Divide by already determined postscale value
 	if(prescale == 0)
 	{
 		prescale = 0;//1:1
-		periodRegister = time / (1 * minPeriod_nS * postscale);
+		periodRegister = time / (1 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 0) && (prescale <= 4))
 	{
 		prescale = 1;//1:4
-		periodRegister = time / (4 * minPeriod_nS * postscale);
+		periodRegister = time / (4 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 4) && (prescale <= 16))
 	{
 		prescale = 2;//1:16
-		periodRegister = time / (16 * minPeriod_nS * postscale);
+		periodRegister = time / (16 * MIN_PERIOD_NS * postscale);
 	}
 	else
 		return 0;//Something went wrong, we should be in range...?
@@ -226,7 +226,6 @@ int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 
 int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
-	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
 	int prescale;
 
@@ -254,7 +253,7 @@ int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptF
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
 	prescale = time;			//Assign time to beat
-	prescale /= minPeriod_nS;	//Divide by the minimum period
+	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 		prescale = 0;//1:1
 	else if((prescale > 0) && (prescale <= 8))
@@ -302,6 +301,9 @@ int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptF
 
 int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
 {
+	long targetTime;
+	int prescale;
+	
 	//Range checking
 	if((gateSource < 0) || (gateSource > 3))
 		return 0;//Out of range
@@ -309,9 +311,6 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 		return 0;//Out of range
 	if((triggerPolarity < 0) || (triggerPolarity > 1))
 		return 0;//Out of range
-	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
-	long targetTime;
-	int prescale;
 
 	//Determine what the prescale and period register should be
 	switch(units)
@@ -337,7 +336,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
 	prescale = time;			//Assign time to beat
-	prescale /= minPeriod_nS;	//Divide by the minimum period
+	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 		prescale = 0;//1:1
 	else if((prescale > 0) && (prescale <= 8))
@@ -385,7 +384,6 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 
 int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
-	long minPeriod_nS = 1000000000 / (FOSC_HZ / 2);//Period of the instruction clock pulse in picoseconds
 	long targetTime;
 	int periodRegister;
 	int prescale;
@@ -417,7 +415,7 @@ int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	postscale = time;			//Assign time to beat
 	postscale /= 0xFF;			//Divide by a maxed out period register
 	postscale /= 16;			//Divide by a maxed out prescaler
-	postscale /= minPeriod_nS;	//Divide by the minimum period
+	postscale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	postscale++;				//Add one to get the correct post scalar
 
 	//Range check
@@ -427,22 +425,22 @@ int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
 	prescale = time;			//Assign time to beat
 	prescale /= 0xFF;			//Divide by a maxed out period register
-	prescale /= minPeriod_nS;	//Divide by the minimum period
+	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	prescale /= postscale;		//Divide by already determined postscale value
 	if(prescale == 0)
 	{
 		prescale = 0;//1:1
-		periodRegister = time / (1 * minPeriod_nS * postscale);
+		periodRegister = time / (1 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 0) && (prescale <= 4))
 	{
 		prescale = 1;//1:4
-		periodRegister = time / (4 * minPeriod_nS * postscale);
+		periodRegister = time / (4 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 4) && (prescale <= 16))
 	{
 		prescale = 2;//1:16
-		periodRegister = time / (16 * minPeriod_nS * postscale);
+		periodRegister = time / (16 * MIN_PERIOD_NS * postscale);
 	}
 	else
 		return 0;//Something went wrong, we should be in range...?
@@ -510,14 +508,43 @@ int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState)
 
 int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 {
+	long time;
+
 	//Range check
 	if((timer < 0 ) || (timer >= NUMBER_OF_AVAILABLE_TIMERS))
 		return 0;//Out of range
-This needs to return a value in the specified time units
+
 	//Determine which timer to read
 	switch(timer)
 	{
 		case 0:
+			//Apply prescalar
+			switch(T1CONbits.TCKPS)
+			{
+				case 0://1:1
+				case 1://1:8
+				case 2://1:64
+				case 3://1:256
+					time = TMR1 * 256 * MIN_PERIOD_NS;
+					break;
+			}
+
+			//Apply units modifier
+			switch(units)
+			{
+				case SECONDS:
+					return (int)(time / 1000000000);
+				case MILLI_SECONDS:
+					return (int)(time / 1000000);
+				case MICRO_SECONDS:
+					return (int)(time / 1000);
+				case NANO_SECONDS:
+					return (int)(time / 1);
+				case TICKS:
+					return (int)(time);
+				default:
+					return 0;//Invalid units
+			}
 			return TMR1;
 		case 1:
 			return TMR2;
