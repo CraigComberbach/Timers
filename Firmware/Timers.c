@@ -256,12 +256,12 @@ int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptF
 	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 		prescale = 0;//1:1
-	else if((prescale > 0) && (prescale <= 8))
-		prescale = 1;//1:8
-	else if((prescale > 8) && (prescale <= 64))
-		prescale = 2;//1:64
-	else if((prescale > 64) && (prescale <= 256))
-		prescale = 3;//1:256
+	else if((prescale > 0) && (prescale <= 2))
+		prescale = 1;//1:2
+	else if((prescale > 2) && (prescale <= 4))
+		prescale = 2;//1:4
+	else if((prescale > 4) && (prescale <= 8))
+		prescale = 3;//1:8
 	else
 		return 0;//Out of range with a maxed out prescalar AND period register
 
@@ -535,32 +535,137 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 					break;
 			}
 
-			//Apply units modifier
+			//Apply units modifier and return finished value
 			switch(units)
 			{
 				case SECONDS:
-					return (int)(time / 1000000000);
+					time /= 1000000000;
 				case MILLI_SECONDS:
-					return (int)(time / 1000000);
+					time /= 1000000;
 				case MICRO_SECONDS:
-					return (int)(time / 1000);
+					time /= 1000;
 				case NANO_SECONDS:
-					return (int)(time / 1);
+					time /= 1;
 				case TICKS:
-					return (int)(time);
+					time;
+					break;
 				default:
 					return 0;//Invalid units
 			}
-			return TMR1;
+
+			//Return the adjusted time in the requested time units
+			return (int)time;
 		case 1:
-			return TMR2;
+			//Apply prescalar and postscalar
+			switch(T2CONbits.T2CKPS)
+			{
+				case 0://1:1
+					time = TMR2 * 1 * MIN_PERIOD_NS * (T2CONbits.T2OUTPS + 1);
+					break;
+				case 1://1:4
+					time = TMR2 * 4 * MIN_PERIOD_NS * (T2CONbits.T2OUTPS + 1);
+					break;
+				case 2://1:16
+					time = TMR2 * 16 * MIN_PERIOD_NS * (T2CONbits.T2OUTPS + 1);
+					break;
+			}			
+
+			//Apply units modifier and return finished value
+			switch(units)
+			{
+				case SECONDS:
+					time /= 1000000000;
+				case MILLI_SECONDS:
+					time /= 1000000;
+				case MICRO_SECONDS:
+					time /= 1000;
+				case NANO_SECONDS:
+					time /= 1;
+				case TICKS:
+					time;
+					break;
+				default:
+					return 0;//Invalid units
+			}
+
+			//Return the adjusted time in the requested time units
+			return (int)time;
 		case 2:
-			return TMR3;
+			//Apply prescalar
+			switch(T3CONbits.TCKPS)
+			{
+				case 0://1:1
+					time = TMR3 * 1 * MIN_PERIOD_NS;
+					break;
+				case 1://1:2
+					time = TMR3 * 2 * MIN_PERIOD_NS;
+					break;
+				case 2://1:4
+					time = TMR3 * 4 * MIN_PERIOD_NS;
+					break;
+				case 3://1:8
+					time = TMR3 * 8 * MIN_PERIOD_NS;
+					break;
+			}
+
+			//Apply units modifier and return finished value
+			switch(units)
+			{
+				case SECONDS:
+					time /= 1000000000;
+				case MILLI_SECONDS:
+					time /= 1000000;
+				case MICRO_SECONDS:
+					time /= 1000;
+				case NANO_SECONDS:
+					time /= 1;
+				case TICKS:
+					time;
+					break;
+				default:
+					return 0;//Invalid units
+			}
+
+			//Return the adjusted time in the requested time units
+			return (int)time;
 		case 3:
 			#if defined __PIC24F08KL200__
 				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-				return TMR4;
+				//Apply prescalar and postscalar
+				switch(T4CONbits.T4CKPS)
+				{
+					case 0://1:1
+						time = TMR4 * 1 * MIN_PERIOD_NS * (T4CONbits.T4OUTPS + 1);
+						break;
+					case 1://1:4
+						time = TMR4 * 4 * MIN_PERIOD_NS * (T4CONbits.T4OUTPS + 1);
+						break;
+					case 2://1:16
+						time = TMR4 * 16 * MIN_PERIOD_NS * (T4CONbits.T4OUTPS + 1);
+						break;
+				}
+
+				//Apply units modifier and return finished value
+				switch(units)
+				{
+					case SECONDS:
+						time /= 1000000000;
+					case MILLI_SECONDS:
+						time /= 1000000;
+					case MICRO_SECONDS:
+						time /= 1000;
+					case NANO_SECONDS:
+						time /= 1;
+					case TICKS:
+						time;
+						break;
+					default:
+						return 0;//Invalid units
+				}
+
+				//Return the adjusted time in the requested time units
+				return (int)time;
 			#else
 				#warning "Timer4 is not setup for this chip"
 			#endif
