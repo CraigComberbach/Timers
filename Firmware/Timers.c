@@ -166,7 +166,7 @@ int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	}
 
 	//Determine postscaler and Period Register - Attempt to minimize the postscalar to retain resolution
-	postscale = time;			//Assign time to beat
+	postscale = targetTime;		//Assign time to beat
 	postscale /= 0xFF;			//Divide by a maxed out period register
 	postscale /= 16;			//Divide by a maxed out prescaler
 	postscale /= MIN_PERIOD_NS;	//Divide by the minimum period
@@ -177,24 +177,24 @@ int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 		return 0;//Out of range with a maxed out postscalar AND prescalar AND period register
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-	prescale = time;			//Assign time to beat
+	prescale = targetTime;		//Assign time to beat
 	prescale /= 0xFF;			//Divide by a maxed out period register
 	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	prescale /= postscale;		//Divide by already determined postscale value
 	if(prescale == 0)
 	{
 		prescale = 0;//1:1
-		periodRegister = time / (1 * MIN_PERIOD_NS * postscale);
+		periodRegister = targetTime / (1 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 0) && (prescale <= 4))
 	{
 		prescale = 1;//1:4
-		periodRegister = time / (4 * MIN_PERIOD_NS * postscale);
+		periodRegister = targetTime / (4 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 4) && (prescale <= 16))
 	{
 		prescale = 2;//1:16
-		periodRegister = time / (16 * MIN_PERIOD_NS * postscale);
+		periodRegister = targetTime / (16 * MIN_PERIOD_NS * postscale);
 	}
 	else
 		return 0;//Something went wrong, we should be in range...?
@@ -252,7 +252,7 @@ int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptF
 	}
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-	prescale = time;			//Assign time to beat
+	prescale = targetTime;		//Assign time to beat
 	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 		prescale = 0;//1:1
@@ -335,7 +335,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 	}
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-	prescale = time;			//Assign time to beat
+	prescale = targetTime;		//Assign time to beat
 	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 		prescale = 0;//1:1
@@ -412,7 +412,7 @@ int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	}
 
 	//Determine postscaler and Period Register - Attempt to minimize the postscalar to retain resolution
-	postscale = time;			//Assign time to beat
+	postscale = targetTime;		//Assign time to beat
 	postscale /= 0xFF;			//Divide by a maxed out period register
 	postscale /= 16;			//Divide by a maxed out prescaler
 	postscale /= MIN_PERIOD_NS;	//Divide by the minimum period
@@ -423,24 +423,24 @@ int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 		return 0;//Out of range with a maxed out postscalar AND prescalar AND period register
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-	prescale = time;			//Assign time to beat
+	prescale = targetTime;		//Assign time to beat
 	prescale /= 0xFF;			//Divide by a maxed out period register
 	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	prescale /= postscale;		//Divide by already determined postscale value
 	if(prescale == 0)
 	{
 		prescale = 0;//1:1
-		periodRegister = time / (1 * MIN_PERIOD_NS * postscale);
+		periodRegister = targetTime / (1 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 0) && (prescale <= 4))
 	{
 		prescale = 1;//1:4
-		periodRegister = time / (4 * MIN_PERIOD_NS * postscale);
+		periodRegister = targetTime / (4 * MIN_PERIOD_NS * postscale);
 	}
 	else if((prescale > 4) && (prescale <= 16))
 	{
 		prescale = 2;//1:16
-		periodRegister = time / (16 * MIN_PERIOD_NS * postscale);
+		periodRegister = targetTime / (16 * MIN_PERIOD_NS * postscale);
 	}
 	else
 		return 0;//Something went wrong, we should be in range...?
