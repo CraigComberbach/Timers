@@ -81,28 +81,28 @@ int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(
 	}
 
 	//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-	prescale = time;			//Assign time to beat
+	prescale = targetTime;		//Assign time to beat
 	prescale /= 0xFF;			//Divide by a maxed out period register
 	prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 	if(prescale == 0)
 	{
 		prescale = 0;//1:1
-		periodRegister = time / (1 * MIN_PERIOD_NS);
+		periodRegister = targetTime / (1 * MIN_PERIOD_NS);
 	}
 	else if((prescale > 0) && (prescale <= 8))
 	{
 		prescale = 1;//1:8
-		periodRegister = time / (8 * MIN_PERIOD_NS);
+		periodRegister = targetTime / (8 * MIN_PERIOD_NS);
 	}
 	else if((prescale > 8) && (prescale <= 64))
 	{
 		prescale = 2;//1:64
-		periodRegister = time / (64 * MIN_PERIOD_NS);
+		periodRegister = targetTime / (64 * MIN_PERIOD_NS);
 	}
 	else if((prescale > 64) && (prescale <= 256))
 	{
 		prescale = 3;//1:256
-		periodRegister = time / (256 * MIN_PERIOD_NS);
+		periodRegister = targetTime / (256 * MIN_PERIOD_NS);
 	}
 	else
 		return 0;//Out of range with a maxed out prescalar AND period register
@@ -522,8 +522,14 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 			switch(T1CONbits.TCKPS)
 			{
 				case 0://1:1
+					time = TMR1 * 1 * MIN_PERIOD_NS;
+					break;
 				case 1://1:8
+					time = TMR1 * 8 * MIN_PERIOD_NS;
+					break;
 				case 2://1:64
+					time = TMR1 * 64 * MIN_PERIOD_NS;
+					break;
 				case 3://1:256
 					time = TMR1 * 256 * MIN_PERIOD_NS;
 					break;
@@ -572,7 +578,7 @@ int Change_Timer_Time(int time, enum TIMER_UNITS units)
 
 void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
-	(*TMR1_interruptFunction)();//Run the associated function
+	TMR1_interruptFunction();//Run the associated function
 
 	//Return to where we left off
 	return;
@@ -580,7 +586,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
 
 void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void)
 {
-	(*TMR2_interruptFunction)();//Run the associated function
+	TMR2_interruptFunction();//Run the associated function
 
 	//Return to where we left off
 	return;
@@ -588,7 +594,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void)
 
 void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void)
 {
-	(*TMR3_interruptFunction)();//Run the associated function
+	TMR3_interruptFunction();//Run the associated function
 
 	//Return to where we left off
 	return;
@@ -596,7 +602,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void)
 
 void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void)
 {
-	(*TMR4_interruptFunction)();//Run the associated function
+	TMR4_interruptFunction();//Run the associated function
 
 	//Return to where we left off
 	return;
