@@ -120,10 +120,20 @@ int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState);
 
 /**
  * Allows the reading of the timer value
- * @param timer  The target timer, use the enum TIMERS_AVAILABLE
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
  * @param timeUnits The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @return The current timer value in the units specified
  */
 int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
+
+/**
+ * Allow the lengthening or shortening of the timers length
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
+ * @param time The desired length of time it takes the timer to expire
+ * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
+ * @return 1 = everything was verified and the timer has been properly setup\
+ * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
+ */
+int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units);
 
 #endif	/* TIMERS_H */
