@@ -52,110 +52,142 @@ void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
 
-int Initialize_TMR1(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
+int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
-	//Change what the prescale and period register should be
-	if(Change_Timer_Time(TIMER1, time, units) == 0)
-		return 0;//Time out of range
+	//Find & Update the correct timer
+	switch(timer)
+	{
+		case 0://Timer1
+			//Change what the prescale and period register should be
+			if(Change_Timer_Time(TIMER1, time, units) == 0)
+				return 0;//Time out of range
 
-	#if defined __PIC24F08KL200__
-		//Timer1 Period Register
-//		//PR1			=		//Taken Care of elsewhere
+			#if defined __PIC24F08KL200__
+				//Timer1 Period Register
+//				PR1			=		//Taken Care of elsewhere
 
-		//Timer1 Control Register
-		T1CONbits.TCS	= 0;	//0 = Internal clock (FOSC/2)
-//		T1CONbits.TSYNC	=		//Not used because TCS = 0
-//		T1CONbits.TCKPS	=		//Taken Care of else where
-		T1CONbits.TGATE	= 0;	//0 = Gated time accumulation is disabled
-//		T1CONbits.T1ECS	=		//Not valid because TCS = 0
-		T1CONbits.TSIDL	= 0;	//0 = Continue module operation in Idle mode
-		T1CONbits.TON	= 1;	//1 = Starts 16-bit Timer1
+				//Timer1 Control Register
+				T1CONbits.TCS	= 0;	//0 = Internal clock (FOSC/2)
+//				T1CONbits.TSYNC	=		//Not used because TCS = 0
+//				T1CONbits.TCKPS	=		//Taken Care of else where
+				T1CONbits.TGATE	= 0;	//0 = Gated time accumulation is disabled
+//				T1CONbits.T1ECS	=		//Not valid because TCS = 0
+				T1CONbits.TSIDL	= 0;	//0 = Continue module operation in Idle mode
+				T1CONbits.TON	= 1;	//1 = Starts 16-bit Timer1
 
-		//Only setup the interrupts if we have a valid function pointer
-		if(interruptFunction)//Check for null pointer
-		{
-			TMR1_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
-			IEC0bits.T1IE = 1;//Enable the interrupt
-		}
-	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-		return 0;//Timer1 does not exist on this chip, as such, this function call has failed
-	#else
-		#warning "Timer1 is not setup for this chip"
-	#endif
+				//Only setup the interrupts if we have a valid function pointer
+				if(interruptFunction)//Check for null pointer
+				{
+					TMR1_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
+					IEC0bits.T1IE = 1;//Enable the interrupt
+				}
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				return 0;//Timer1 does not exist on this chip, as such, this function call has failed
+			#else
+				#warning "Timer1 is not setup for this chip"
+			#endif
 
-	//Success
-	return 1;
-}
+			//Success
+			return 1;
+		case 1://Timer2
+			//Determine what the prescale and period register should be
+			if(Change_Timer_Time(TIMER2, time, units) == 0)
+				return 0;//Time out of range
 
-int Initialize_TMR2(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
-{
-	//Determine what the prescale and period register should be
-	if(Change_Timer_Time(TIMER2, time, units) == 0)
-		return 0;//Time out of range
+			#if defined __PIC24F08KL200__
+				//Timer2 Period Register
+//				PR2					=		//Taken Care of elsewhere
 
-	#if defined __PIC24F08KL200__
-		//Timer2 Period Register
-//		PR2					=		//Taken Care of elsewhere
+				//Timer2 Control Register
+//				T2CONbits.T2OUTPS	=		//Taken Care of elsewhere
+//				T2CONbits.T2CKPS	=		//Taken Care of elsewhere
+				T2CONbits.TON		= 1;	//1 = Timer2 is on
 
-		//Timer2 Control Register
-//		T2CONbits.T2OUTPS	=		//Taken Care of elsewhere
-//		T2CONbits.T2CKPS	=		//Taken Care of elsewhere
-		T2CONbits.TON		= 1;	//1 = Timer2 is on
+				//Only setup the interrupts if we have a valid function pointer
+				if(interruptFunction)//Check for null pointer
+				{
+					TMR2_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
+					IEC0bits.T2IE = 1;//Enable the interrupt
+				}
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				return 0;//Timer2 does not exist on this chip, as such, this function call has failed
+			#else
+				#warning "Timer2 is not setup for this chip"
+			#endif
 
-		//Only setup the interrupts if we have a valid function pointer
-		if(interruptFunction)//Check for null pointer
-		{
-			TMR2_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
-			IEC0bits.T2IE = 1;//Enable the interrupt
-		}
-	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-		return 0;//Timer2 does not exist on this chip, as such, this function call has failed
-	#else
-		#warning "Timer2 is not setup for this chip"
-	#endif
+			//Success
+			return 1;
+		case 2://Timer3
+			//Determine Prescaler and Period Register
+			if(Change_Timer_Time(TIMER3, time, units) == 0)
+				return 0;//Time out of range
 
-	//Success
-	return 1;
-}
+			#if defined __PIC24F08KL200__
+				//Timer3 Gate Control Register
+				//Note it is recommended in the spec sheet to intialize this register before T3CON
+				T3GCONbits.TMR3GE		= 0;	//Default: 0 = Timer counts regardless of the Timer3 gate function
+				T3GCONbits.T3GPOL		= 0;	//Default: 0 = Timer gate is active-low (Timer3 counts when the gate is low)
+				T3GCONbits.T3GTM		= 0;	//Default: 0 = Timer Gate Toggle mode is disabled and toggle flip-flop is cleared
+				T3GCONbits.T3GSPM		= 0;	//Default: 0 = Timer Gate Single Pulse mode is disabled
+				T3GCONbits.T3GGO		= 0;	//Default: 0 = Timer gate single pulse acquisition has completed or has not been started
+//				T3GCONbits.T3GVAL				//Timer Gate Current State bit
+				T3GCONbits.T3GSS		= 0;	//Timer Gate Source Select bits (0 = T3G input pin, 1 = TMR2 to match PR2 output, 2 = Comparator 1 output, 3 = Comparator 2 output)
 
-int Initialize_TMR3_As_Timer(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
-{
-	//Determine Prescaler and Period Register
-	if(Change_Timer_Time(TIMER3, time, units) == 0)
-		return 0;//Time out of range
+				//Timer3 Control Register
+				T3CONbits.TMR3CS		= 1;	//Clock Source Select bits, 1 = Instruction Clock (Fosc/2)
+//				T3CONbits.T3CKPS		=		//Taken Care of elsewhere
+				T3CONbits.T3OSCEN		= 1;	//SOSC (Secondary Oscillator) is used as a clock source
+//				T3CONbits.NOT_T3SYNC	=		//When TMR3CS = 0x: This bit is ignored; Timer3 uses the internal clock.
+				T3CONbits.TMR3ON		= 1;	//1 = Enables Timer
 
-	#if defined __PIC24F08KL200__
-		//Timer3 Gate Control Register
-		//Note it is recommended in the spec sheet to intialize this register before T3CON
-		T3GCONbits.TMR3GE		= 0;	//Default: 0 = Timer counts regardless of the Timer3 gate function
-		T3GCONbits.T3GPOL		= 0;	//Default: 0 = Timer gate is active-low (Timer3 counts when the gate is low)
-		T3GCONbits.T3GTM		= 0;	//Default: 0 = Timer Gate Toggle mode is disabled and toggle flip-flop is cleared
-		T3GCONbits.T3GSPM		= 0;	//Default: 0 = Timer Gate Single Pulse mode is disabled
-		T3GCONbits.T3GGO		= 0;	//Default: 0 = Timer gate single pulse acquisition has completed or has not been started
-//		T3GCONbits.T3GVAL				//Timer Gate Current State bit
-		T3GCONbits.T3GSS		= 0;	//Timer Gate Source Select bits (0 = T3G input pin, 1 = TMR2 to match PR2 output, 2 = Comparator 1 output, 3 = Comparator 2 output)
+				//Only setup the interrupts if we have a valid function pointer
+				if(interruptFunction)//Check for null pointer
+				{
+					TMR3_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
+					IEC0bits.T3IE = 1;//Enable the interrupt
+				}
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				return 0;//Timer3 does not exist on this chip, as such, this function call has failed
+			#else
+				#warning "Timer3 is not setup for this chip"
+			#endif
 
-		//Timer3 Control Register
-		T3CONbits.TMR3CS		= 1;	//Clock Source Select bits, 1 = Instruction Clock (Fosc/2)
-//		T3CONbits.T3CKPS		=		//Taken Care of elsewhere
-		T3CONbits.T3OSCEN		= 1;	//SOSC (Secondary Oscillator) is used as a clock source
-//		T3CONbits.NOT_T3SYNC	=		//When TMR3CS = 0x: This bit is ignored; Timer3 uses the internal clock.
-		T3CONbits.TMR3ON		= 1;	//1 = Enables Timer
+			//Success
+			return 1;
+		case 3://Timer4
+			#if defined __PIC24F08KL200__
+				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				//Determine what the prescale and period register should be
+				if(Change_Timer_Time(TIMER4, time, units) == 0)
+					return 0;//Time out of range
 
-		//Only setup the interrupts if we have a valid function pointer
-		if(interruptFunction)//Check for null pointer
-		{
-			TMR3_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
-			IEC0bits.T3IE = 1;//Enable the interrupt
-		}
-	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-		return 0;//Timer3 does not exist on this chip, as such, this function call has failed
-	#else
-		#warning "Timer3 is not setup for this chip"
-	#endif
+				//Timer4 Period Register
+//				PR4					=		//Taken Care of elsewhere
 
-	//Success
-	return 1;
+				//Timer4 Control Register
+//				T4CONbits.T4OUTPS	=		//Taken Care of elsewhere
+//				T4CONbits.T4CKPS	=		//Taken Care of elsewhere
+				T4CONbits.TON		= 1;	//1 = Timer4 is on
+
+				//Only setup the interrupts if we have a valid function pointer
+				if(interruptFunction)//Check for null pointer
+				{
+					TMR4_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
+					IEC1bits.T1IE = 1;//Enable the interrupt
+				}
+			#else
+				#warning "Timer4 is not setup for this chip"
+			#endif
+
+			//Success
+			return 1;
+		default:
+			return 0;//Timer is out of range
+	}
+
+	//How did I get here?
+	return 0;
 }
 
 int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
@@ -200,37 +232,6 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 		return 0;//Timer3 does not exist on this chip, as such, this function call has failed
 	#else
 		#warning "Timer3 is not setup for this chip"
-	#endif
-
-	//Success
-	return 1;
-}
-
-int Initialize_TMR4(int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
-{
-	#if defined __PIC24F08KL200__
-		return 0;//Timer4 does not exist on this chip, as such, this function call has failed
-	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-		//Determine what the prescale and period register should be
-		if(Change_Timer_Time(TIMER4, time, units) == 0)
-			return 0;//Time out of range
-
-		//Timer4 Period Register
-//		PR4					=		//Taken Care of elsewhere
-
-		//Timer4 Control Register
-//		T4CONbits.T4OUTPS	=		//Taken Care of elsewhere
-//		T4CONbits.T4CKPS	=		//Taken Care of elsewhere
-		T4CONbits.TON		= 1;	//1 = Timer4 is on
-
-		//Only setup the interrupts if we have a valid function pointer
-		if(interruptFunction)//Check for null pointer
-		{
-			TMR4_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
-			IEC1bits.T1IE = 1;//Enable the interrupt
-		}
-	#else
-		#warning "Timer4 is not setup for this chip"
 	#endif
 
 	//Success
