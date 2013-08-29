@@ -3,13 +3,32 @@
 
 /************* Semantic Versioning***************/
 #define TIMERS_MAJOR	0
-#define TIMERS_MINOR	2
+#define TIMERS_MINOR	3
 #define TIMERS_PATCH	0
 
 /*************   Magic  Numbers   ***************/
 #define NO_TIMER_INTERRUPT	(void*)0
+#define TIMER_ON	1
+#define TIMER_OFF	0
 
 /*************    Enumeration     ***************/
+enum TIMERS_AVAILABLE
+{
+#if defined __PIC24F08KL200__
+	TIMER1,
+	TIMER2,
+	TIMER3,
+#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+	TIMER1,
+	TIMER2,
+	TIMER3,
+	TIMER4,
+#else
+	#warning "This chip is not setup for timers yet"
+#endif
+	NUMBER_OF_AVAILABLE_TIMERS
+};
+
 enum TIMER_UNITS
 {
 	SECONDS,
@@ -22,7 +41,8 @@ enum TIMER_UNITS
 /***********State Machine Definitions************/
 /*************Function  Prototypes***************/
 /**
- * Initializes Timer 1
+ * Initializes the specified timer to have a set period
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
  * @param time The length of time it takes the timer to expire
  * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
@@ -30,29 +50,7 @@ enum TIMER_UNITS
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR1(int time, int units, void (*interruptFunction)(void));
-
-/**
- * Initializes Timer 2
- * @param time The length of time it takes the timer to expire
- * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
- * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
- * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
- * @return 1 = everything was verified and the timer has been properly initialized\
- * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
- */
-int Initialize_TMR2(int time, int units, void (*interruptFunction)(void));
-
-/**
- * Initializes Timer 3 as a standard timer
- * @param time The length of time it takes the timer to expire
- * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
- * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
- * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
- * @return 1 = everything was verified and the timer has been properly initialized\
- * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
- */
-int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void));
+int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a gated timer
@@ -74,18 +72,35 @@ int Initialize_TMR3_As_Timer(int time, int units, void (*interruptFunction)(void
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR3_As_Gated_Timer(int time, int units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
-
+int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
 
 /**
- * Initializes Timer 4
- * @param time The length of time it takes the timer to expire
+ * This function will turn on or off a specified timer
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
+ * @param newState The state that the timer should be changed to\
+ * 1 = Enabled\
+ * 0 = Disabled
+ * @return 1 = The timer was succefully changed\
+ * 0 = Either the timer was out of range or the new state was invalid
+ */
+int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState);
+
+/**
+ * Allows the reading of the timer value
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
+ * @param timeUnits The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
+ * @return The current timer value in the units specified
+ */
+int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
+
+/**
+ * Allow the lengthening or shortening of the timers length
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
+ * @param time The desired length of time it takes the timer to expire
  * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
- * @param interruptFunction The function that will be called when the timer expires, it should be a function pointer that has the format of "void Some_Function(void)"\
- * Sending a null pointer "(void *)0" is acceptable, this would be done if you did not want a function to be called during the interrupt
- * @return 1 = everything was verified and the timer has been properly initialized\
+ * @return 1 = everything was verified and the timer has been properly setup\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR4(int time, int units, void (*interruptFunction)(void));
+int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units);
 
 #endif	/* TIMERS_H */
