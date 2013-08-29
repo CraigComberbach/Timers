@@ -6,9 +6,13 @@ Code assumptions:
 Purpose:				Allow access and control over the available timers. This includes handling intialization, temporary disabling/reenabling, interrupt control, and any other functionality
 
 Version History:
-v0.3.0	2013-08-13  Craig Comberbach
+v0.3.0	2013-08-29  Craig Comberbach
 	Compiler: C30 v3.31	IDE: MPLABx 1.80	Tool: RealICE	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
-	Added Change Timer Trigger function to allow the timer to be enabled/disabled on the fly
+ 	Added Change Timer Trigger function to allow the timer to be enabled/disabled on the fly
+	Added functionality to allow polling of timers
+	Added functionality to allow changing the timer period on the fly
+	Timer initialization has been made more generic, it is now done through a single function
+	*BUG FIX* Timers now round properly when they are are auto-magically setting the period register
 v0.2.0	2013-08-08  Craig Comberbach
 	Compiler: C30 v3.31	IDE: MPLABx 1.85	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 7 64 bit Home Premium SP1
 	Prescaler, Postscaler and Period Registers are all handled auto-magically on Timers 1/2/3/4
