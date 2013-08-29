@@ -54,6 +54,7 @@ int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS uni
 
 /**
  * Initializes Timer 3 as a gated timer
+ * @param timer The target timer, use the enum TIMERS_AVAILABLE
  * @param time The length of time it takes the timer to expire
  * @param units The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @param gateSource What source causes the gate to open and close\
@@ -72,7 +73,7 @@ int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS uni
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
+int Initialize_TMR3_As_Gated_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void));
 
 /**
  * This function will turn on or off a specified timer

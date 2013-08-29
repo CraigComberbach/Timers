@@ -194,7 +194,7 @@ int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS uni
 	return 0;
 }
 
-int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
+int Initialize_TMR3_As_Gated_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
 {
 	//Range checking
 	if((gateSource < 0) || (gateSource > 3))
