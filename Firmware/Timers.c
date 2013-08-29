@@ -485,22 +485,34 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 			if(prescale == 0)
 			{
 				prescale = 0;//1:1
-				periodRegister = targetTime / (1 * MIN_PERIOD_NS);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 1 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 0) && (prescale <= 8))
 			{
 				prescale = 1;//1:8
-				periodRegister = targetTime / (8 * MIN_PERIOD_NS);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 8 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 8) && (prescale <= 64))
 			{
 				prescale = 2;//1:64
-				periodRegister = targetTime / (64 * MIN_PERIOD_NS);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 64 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 64) && (prescale <= 256))
 			{
 				prescale = 3;//1:256
-				periodRegister = targetTime / (256 * MIN_PERIOD_NS);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 256 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else
 				return 0;//Out of range with a maxed out prescalar AND period register
@@ -530,17 +542,26 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 			if(prescale == 0)
 			{
 				prescale = 0;//1:1
-				periodRegister = targetTime / (1 * MIN_PERIOD_NS * postscale);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 1 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 0) && (prescale <= 4))
 			{
 				prescale = 1;//1:4
-				periodRegister = targetTime / (4 * MIN_PERIOD_NS * postscale);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 4 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 4) && (prescale <= 16))
 			{
 				prescale = 2;//1:16
-				periodRegister = targetTime / (16 * MIN_PERIOD_NS * postscale);
+				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister /= 16 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
+				periodRegister += 5;//Allow for rounding
+				periodRegister /= 10;//Lose the gained resolution
 			}
 			else
 				return 0;//Something went wrong, we should be in range...?
@@ -552,7 +573,7 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 
 			return 1;//Success
 		case 2://Timer 3
-			//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
+			//Determine Prescaler - Attempt to minimize the prescalar to retain resolution
 			Change_Timer_Time(TIMER3, time, units);
 			prescale = targetTime;		//Assign time to beat
 			prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
@@ -594,17 +615,26 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 				if(prescale == 0)
 				{
 					prescale = 0;//1:1
-					periodRegister = targetTime / (1 * MIN_PERIOD_NS * postscale);
+					periodRegister = targetTime * 10;//Gain resolution
+					periodRegister /= 1 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
+					periodRegister += 5;//Allow for rounding
+					periodRegister /= 10;//Lose the gained resolution
 				}
 				else if((prescale > 0) && (prescale <= 4))
 				{
 					prescale = 1;//1:4
-					periodRegister = targetTime / (4 * MIN_PERIOD_NS * postscale);
+					periodRegister = targetTime * 10;//Gain resolution
+					periodRegister /= 4 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
+					periodRegister += 5;//Allow for rounding
+					periodRegister /= 10;//Lose the gained resolution
 				}
 				else if((prescale > 4) && (prescale <= 16))
 				{
 					prescale = 2;//1:16
-					periodRegister = targetTime / (16 * MIN_PERIOD_NS * postscale);
+					periodRegister = targetTime * 10;//Gain resolution
+					periodRegister /= 16 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
+					periodRegister += 5;//Allow for rounding
+					periodRegister /= 10;//Lose the gained resolution
 				}
 				else
 					return 0;//Something went wrong, we should be in range...?
