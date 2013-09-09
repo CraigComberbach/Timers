@@ -312,12 +312,16 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 			{
 				case SECONDS:
 					time /= 1000000000;
+					break;
 				case MILLI_SECONDS:
 					time /= 1000000;
+					break;
 				case MICRO_SECONDS:
 					time /= 1000;
+					break;
 				case NANO_SECONDS:
 					time /= 1;
+					break;
 				case TICKS:
 					time;
 					break;
@@ -347,12 +351,16 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 			{
 				case SECONDS:
 					time /= 1000000000;
+					break;
 				case MILLI_SECONDS:
 					time /= 1000000;
+					break;
 				case MICRO_SECONDS:
 					time /= 1000;
+					break;
 				case NANO_SECONDS:
 					time /= 1;
+					break;
 				case TICKS:
 					time;
 					break;
@@ -385,12 +393,16 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 			{
 				case SECONDS:
 					time /= 1000000000;
+					break;
 				case MILLI_SECONDS:
 					time /= 1000000;
+					break;
 				case MICRO_SECONDS:
 					time /= 1000;
+					break;
 				case NANO_SECONDS:
 					time /= 1;
+					break;
 				case TICKS:
 					time;
 					break;
@@ -423,12 +435,16 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				{
 					case SECONDS:
 						time /= 1000000000;
+						break;
 					case MILLI_SECONDS:
 						time /= 1000000;
+						break;
 					case MICRO_SECONDS:
 						time /= 1000;
+						break;
 					case NANO_SECONDS:
 						time /= 1;
+						break;
 					case TICKS:
 						time;
 						break;
