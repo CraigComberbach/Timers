@@ -34,6 +34,16 @@ v0.0.0	2013-07-20  Craig Comberbach
 #include "Timers.h"
 
 /************* Semantic Versioning***************/
+#ifndef TIMERS_LIBRARY
+	#error "You need to include the Timers library for this code to compile"
+#elif TIMERS_MAJOR != 0
+	#warning "Timers.c has had a change that loses some previously supported functionality"
+#elif TIMERS_MINOR != 3
+	#warning "Timers.c has new features that this code may benefit from"
+#elif TIMERS_PATCH != 0
+	#warning "Timers.c has had a bug fix, you should check to see that we weren't relying on a bug for functionality"
+#endif
+
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define MIN_PERIOD_NS (1000000000/(FOSC_HZ/2))	//Period of the instruction clock pulse in nanoseconds

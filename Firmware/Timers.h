@@ -2,6 +2,7 @@
 #define	TIMERS_H
 
 /************* Semantic Versioning***************/
+#define TIMERS_LIBRARY
 #define TIMERS_MAJOR	0
 #define TIMERS_MINOR	3
 #define TIMERS_PATCH	0
