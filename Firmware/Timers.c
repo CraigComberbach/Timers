@@ -35,11 +35,11 @@ v0.0.0	2013-07-20  Craig Comberbach
 
 /************* Semantic Versioning***************/
 #if TIMERS_MAJOR != 0
-	#warning "Timers.c has had a change that loses some previously supported functionality"
+	#error "Timers.c has had a change that loses some previously supported functionality"
 #elif TIMERS_MINOR != 3
-	#warning "Timers.c has new features that this code may benefit from"
+	#error "Timers.c has new features that this code may benefit from"
 #elif TIMERS_PATCH != 0
-	#warning "Timers.c has had a bug fix, you should check to see that we weren't relying on a bug for functionality"
+	#error "Timers.c has had a bug fix, you should check to see that we weren't relying on a bug for functionality"
 #endif
 
 /************Arbitrary Functionality*************/
@@ -55,10 +55,18 @@ void (*TMR3_interruptFunction)(void) = (void *)0;
 void (*TMR4_interruptFunction)(void) = (void *)0;
 
 /*************Function  Prototypes***************/
-void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void);
-void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void);
-void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
-void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
+
+#if defined __PIC24F08KL200__
+	void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void);
+	void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void);
+	void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
+	//Timer 4 does not exist
+#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+	void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void);
+	void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void);
+	void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
+	void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
+#endif
 
 /************* Device Definitions ***************/
 /************* Module Definitions ***************/
@@ -459,10 +467,10 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 
 int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units)
 {
-	long targetTime;
-	int periodRegister;
-	int prescale;
-	int postscale;
+	unsigned long targetTime;
+	unsigned long periodRegister;
+	unsigned long prescale;
+	unsigned long postscale;
 
 	//Determine the target time in nS
 	switch(units)
@@ -492,39 +500,31 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 		case 0://Timer 1
 			//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
 			prescale = targetTime;		//Assign time to beat
-			prescale /= 0xFF;			//Divide by a maxed out period register
+			prescale /= 0xFFFF;			//Divide by a maxed out period register
 			prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
 			if(prescale == 0)
 			{
 				prescale = 0;//1:1
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 1 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 0) && (prescale <= 8))
 			{
 				prescale = 1;//1:8
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 8 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 8) && (prescale <= 64))
 			{
 				prescale = 2;//1:64
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 64 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 64) && (prescale <= 256))
 			{
 				prescale = 3;//1:256
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 256 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else
 				return 0;//Out of range with a maxed out prescalar AND period register
@@ -532,7 +532,6 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 			//Make it official
 			PR1 = periodRegister;		//The value to trigger an interrupt at
 			T1CONbits.TCKPS	= prescale;	//Timer1 Input Clock Prescale Select bits (0 = 1:1, 1 = 1:8, 2 = 1:64, 3 = 1:256)
-
 			return 1;//Success
 		case 1://Timer 2
 			//Determine postscaler and Period Register - Attempt to minimize the postscalar to retain resolution
@@ -554,26 +553,20 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 			if(prescale == 0)
 			{
 				prescale = 0;//1:1
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 1 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 0) && (prescale <= 4))
 			{
 				prescale = 1;//1:4
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 4 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else if((prescale > 4) && (prescale <= 16))
 			{
 				prescale = 2;//1:16
-				periodRegister = targetTime * 10;//Gain resolution
+				periodRegister = targetTime;
 				periodRegister /= 16 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-				periodRegister += 5;//Allow for rounding
-				periodRegister /= 10;//Lose the gained resolution
 			}
 			else
 				return 0;//Something went wrong, we should be in range...?
@@ -581,7 +574,7 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 			//Make it official
 			PR2					= periodRegister;	//The value to trigger an interrupt at
 			T2CONbits.T2OUTPS	= postscale;		//Timer2 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
-			T2CONbits.T2OUTPS	= postscale;		//Timer2 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
+			T2CONbits.T2CKPS	= prescale;			//Timer2 Output Prescale Select bits (0 = 1, 1 = 4, 2 = 16, 3 = undefined)
 
 			return 1;//Success
 		case 2://Timer 3
@@ -627,26 +620,20 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 				if(prescale == 0)
 				{
 					prescale = 0;//1:1
-					periodRegister = targetTime * 10;//Gain resolution
+					periodRegister = targetTime;
 					periodRegister /= 1 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-					periodRegister += 5;//Allow for rounding
-					periodRegister /= 10;//Lose the gained resolution
 				}
 				else if((prescale > 0) && (prescale <= 4))
 				{
 					prescale = 1;//1:4
-					periodRegister = targetTime * 10;//Gain resolution
+					periodRegister = targetTime;
 					periodRegister /= 4 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-					periodRegister += 5;//Allow for rounding
-					periodRegister /= 10;//Lose the gained resolution
 				}
 				else if((prescale > 4) && (prescale <= 16))
 				{
 					prescale = 2;//1:16
-					periodRegister = targetTime * 10;//Gain resolution
+					periodRegister = targetTime;
 					periodRegister /= 16 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-					periodRegister += 5;//Allow for rounding
-					periodRegister /= 10;//Lose the gained resolution
 				}
 				else
 					return 0;//Something went wrong, we should be in range...?
@@ -670,6 +657,7 @@ int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS un
 
 void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
 {
+	IFS0bits.T1IF = 0;
 	TMR1_interruptFunction();//Run the associated function
 
 	//Return to where we left off
@@ -678,6 +666,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void)
 
 void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void)
 {
+	IFS0bits.T2IF = 0;
 	TMR2_interruptFunction();//Run the associated function
 
 	//Return to where we left off
@@ -686,16 +675,23 @@ void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void)
 
 void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void)
 {
+	IFS0bits.T3IF = 0;
 	TMR3_interruptFunction();//Run the associated function
 
 	//Return to where we left off
 	return;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void)
-{
-	TMR4_interruptFunction();//Run the associated function
+#if defined __PIC24F08KL200__
+	//Timer 4 does not exist
+#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+	void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void)
+	{
 
-	//Return to where we left off
-	return;
-}
+		IFS0bits.T4IF = 0;
+		TMR4_interruptFunction();//Run the associated function
+
+		//Return to where we left off
+		return;
+	}
+#endif
