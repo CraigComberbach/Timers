@@ -30,13 +30,11 @@ v0.0.0	2013-07-20  Craig Comberbach
 	First version
 **************************************************************************************************/
 /*************    Header Files    ***************/
-#include "Project Setup.h"
+#include "Config.h"
 #include "Timers.h"
 
 /************* Semantic Versioning***************/
-#ifndef TIMERS_LIBRARY
-	#error "You need to include the Timers library for this code to compile"
-#elif TIMERS_MAJOR != 0
+#if TIMERS_MAJOR != 0
 	#warning "Timers.c has had a change that loses some previously supported functionality"
 #elif TIMERS_MINOR != 3
 	#warning "Timers.c has new features that this code may benefit from"

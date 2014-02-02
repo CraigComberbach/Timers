@@ -3,9 +3,6 @@
 
 /************* Semantic Versioning***************/
 #define TIMERS_LIBRARY
-#define TIMERS_MAJOR	0
-#define TIMERS_MINOR	3
-#define TIMERS_PATCH	0
 
 /*************   Magic  Numbers   ***************/
 #define NO_TIMER_INTERRUPT	(void*)0
