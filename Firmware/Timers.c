@@ -335,7 +335,7 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				case NANO_SECONDS:
 					time /= 1;
 				case TICKS:
-					time;
+					time = time;
 					break;
 				default:
 					return 0;//Invalid units
@@ -370,7 +370,7 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				case NANO_SECONDS:
 					time /= 1;
 				case TICKS:
-					time;
+					time = time;
 					break;
 				default:
 					return 0;//Invalid units
@@ -408,7 +408,7 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				case NANO_SECONDS:
 					time /= 1;
 				case TICKS:
-					time;
+					time = time;
 					break;
 				default:
 					return 0;//Invalid units
