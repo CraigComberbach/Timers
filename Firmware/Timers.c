@@ -465,7 +465,7 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 	return 0;
 }
 
-int Change_Timer_Time(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units)
+int Change_Timer_Time(enum TIMERS_AVAILABLE timer, unsigned int time, enum TIMER_UNITS units)
 {
 	unsigned long targetTime;
 	unsigned long periodRegister;
