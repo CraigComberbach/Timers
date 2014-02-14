@@ -298,10 +298,6 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 {
 	long time;
 
-	//Range check
-	if((timer < 0 ) || (timer >= NUMBER_OF_AVAILABLE_TIMERS))
-		return 0;//Out of range
-
 	//Determine which timer to read
 	switch(timer)
 	{
@@ -321,6 +317,8 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				case 3://1:256
 					time = TMR1 * 256 * MIN_PERIOD_NS;
 					break;
+				default:
+					return 0;//Invalid units
 			}
 
 			//Apply units modifier and return finished value
@@ -356,6 +354,8 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				case 2://1:16
 					time = TMR2 * 16 * MIN_PERIOD_NS * (T2CONbits.T2OUTPS + 1);
 					break;
+				default:
+					return 0;//Invalid units
 			}			
 
 			//Apply units modifier and return finished value
@@ -394,6 +394,8 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 				case 3://1:8
 					time = TMR3 * 8 * MIN_PERIOD_NS;
 					break;
+				default:
+					return 0;//Invalid units
 			}
 
 			//Apply units modifier and return finished value
@@ -432,6 +434,8 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 					case 2://1:16
 						time = TMR4 * 16 * MIN_PERIOD_NS * (T4CONbits.T4OUTPS + 1);
 						break;
+					default:
+						return 0;//Invalid units
 				}
 
 				//Apply units modifier and return finished value
