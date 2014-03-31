@@ -471,38 +471,43 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 
 int Change_Timer_Time(enum TIMERS_AVAILABLE timer, unsigned long time, enum TIMER_UNITS units)
 {
-	unsigned long periodRegister;
-	unsigned long prescale;
-	unsigned long postscale;
-	int prescaler[4] = {1,8,64,256};
-	int loop;
+	unsigned long temp;
+	int prescalerValue[] = {1,4,16};
+	int postscalerValue[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	int prescaler;
+	int postscaler;
 
-	for(loop = 0; loop < 4; loop++)
+	for(prescaler = 0; prescaler < 3; prescaler++)
 	{
-		prescale = FOSC_HZ;
-		switch(units)
+		for(postscaler = 0; postscaler < 16; postscaler++)
 		{
-			case SECONDS:
-				break;
-			case MILLI_SECONDS:
-				prescale /= 1000;
-				break;
-			case MICRO_SECONDS:
-				prescale /= 1000000;
-				break;
-			case NANO_SECONDS:
-				prescale /= 1000000000;
-				break;
-			case TICKS:
-				break;
-			default:
-				return 0;//Invalid units
-		}
-		prescale *= time;
-		prescale /= 2 * prescaler[loop];
+			temp = FOSC_HZ;
+			switch(units)
+			{
+				case SECONDS:
+					break;
+				case MILLI_SECONDS:
+					temp /= 1000;
+					break;
+				case MICRO_SECONDS:
+					temp /= 1000000;
+					break;
+				case NANO_SECONDS:
+					temp /= 1000000000;
+					break;
+				case TICKS:
+					break;
+				default:
+					return 0;//Invalid units
+			}
+			temp *= time;
+			temp /= 2;
+			temp /= prescalerValue[prescaler];
+			temp /= postscalerValue[postscaler];
 
-		if(prescale < 0xFFFF)
-			break;
+			if(temp < 0xFF)
+				break;
+		}
 	}
 //	unsigned long targetTime;
 //	unsigned long periodRegister;
