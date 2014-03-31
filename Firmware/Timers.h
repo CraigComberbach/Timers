@@ -99,6 +99,6 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
  * @return 1 = everything was verified and the timer has been properly setup\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Change_Timer_Time(enum TIMERS_AVAILABLE timer, unsigned int time, enum TIMER_UNITS units);
+int Change_Timer_Time(enum TIMERS_AVAILABLE timer, unsigned int long, enum TIMER_UNITS units);
 
 #endif	/* TIMERS_H */
