@@ -12,18 +12,18 @@
 /*************    Enumeration     ***************/
 enum TIMERS_AVAILABLE
 {
-#if defined __PIC24F08KL200__
-	TIMER1,
-	TIMER2,
-	TIMER3,
-#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-	TIMER1,
-	TIMER2,
-	TIMER3,
-	TIMER4,
-#else
-	#warning "This chip is not setup for timers yet"
-#endif
+	#if defined __PIC24F08KL200__
+		TIMER1,
+		TIMER2,
+		TIMER3,
+	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+		TIMER1,
+		TIMER2,
+		TIMER3,
+		TIMER4,
+	#else
+		#warning "This chip is not setup for timers yet"
+	#endif
 	NUMBER_OF_AVAILABLE_TIMERS
 };
 
@@ -34,6 +34,17 @@ enum TIMER_UNITS
 	MICRO_SECONDS,
 	NANO_SECONDS,
 	TICKS
+};
+
+/***********  Structure Definitions  ************/
+struct TIMER_DEFINITION
+{
+	enum TIMERS_AVAILABLE timer;
+	char resolution;
+	char numberOfPrescalers;
+	int prescaler[4];//Unused prescalers need to be non-zero
+	char numberOfPostscalers;
+	int postscaler[16];//Unused postscalers need to be non-zero
 };
 
 /***********State Machine Definitions************/
@@ -99,6 +110,6 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
  * @return 1 = everything was verified and the timer has been properly setup\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Change_Timer_Time(enum TIMERS_AVAILABLE timer, unsigned int long, enum TIMER_UNITS units);
+int Change_Timer_Period(struct TIMER_DEFINITION timer, unsigned long time, enum TIMER_UNITS units);
 
 #endif	/* TIMERS_H */

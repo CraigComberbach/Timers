@@ -72,14 +72,14 @@ void (*TMR4_interruptFunction)(void) = (void *)0;
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
 
-int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
+int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
 	//Find & Update the correct timer
-	switch(timer)
+	switch(timer.timer)
 	{
 		case 0://Timer1
 			//Change what the prescale and period register should be
-			if(Change_Timer_Time(TIMER1, time, units) == 0)
+			if(Change_Timer_Period(TIMER1, time, units) == 0)
 				return 0;//Time out of range
 
 			#if defined __PIC24F08KL200__
@@ -111,7 +111,7 @@ int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS uni
 			return 1;
 		case 1://Timer2
 			//Determine what the prescale and period register should be
-			if(Change_Timer_Time(TIMER2, time, units) == 0)
+			if(Change_Timer_Period(TIMER2, time, units) == 0)
 				return 0;//Time out of range
 
 			#if defined __PIC24F08KL200__
@@ -139,7 +139,7 @@ int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS uni
 			return 1;
 		case 2://Timer3
 			//Determine Prescaler and Period Register
-			if(Change_Timer_Time(TIMER3, time, units) == 0)
+			if(Change_Timer_Period(TIMER3, time, units) == 0)
 				return 0;//Time out of range
 
 			#if defined __PIC24F08KL200__
@@ -179,7 +179,7 @@ int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS uni
 				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
 				//Determine what the prescale and period register should be
-				if(Change_Timer_Time(TIMER4, time, units) == 0)
+				if(Change_Timer_Period(TIMER4, time, units) == 0)
 					return 0;//Time out of range
 
 				//Timer4 Period Register
@@ -221,7 +221,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 		return 0;//Out of range
 
 	//Determine Prescaler and Period Register
-	if(Change_Timer_Time(TIMER3, time, units) == 0)
+	if(Change_Timer_Period(TIMER3, time, units) == 0)
 		return 0;//Time out of range
 
 	#if defined __PIC24F08KL200__
@@ -469,45 +469,60 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
 	return 0;
 }
 
-int Change_Timer_Time(enum TIMERS_AVAILABLE timer, unsigned long time, enum TIMER_UNITS units)
+int Change_Timer_Period(struct TIMER_DEFINITION timer, unsigned long period, enum TIMER_UNITS units)
 {
-	unsigned long temp;
-	int prescalerValue[] = {1,4,16};
-	int postscalerValue[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	unsigned long periodTimer;
 	int prescaler;
 	int postscaler;
+	int finished = 0;
 
-	for(prescaler = 0; prescaler < 3; prescaler++)
+	//Range checking
+	if((timer.timer < 0) || (timer.timer >= NUMBER_OF_AVAILABLE_TIMERS))
+		return 0;//Invalid timer
+
+	//Determine Pre\Post Scalars as well as the period register
+	for(prescaler = 0; prescaler < timer.numberOfPrescalers; prescaler++)
 	{
-		for(postscaler = 0; postscaler < 16; postscaler++)
+		postscaler = 0;
+		do//Ensure this code runs at least once
 		{
-			temp = FOSC_HZ;
+			periodTimer = FOSC_HZ;
 			switch(units)
 			{
 				case SECONDS:
 					break;
 				case MILLI_SECONDS:
-					temp /= 1000;
+					periodTimer /= 1000;
 					break;
 				case MICRO_SECONDS:
-					temp /= 1000000;
+					periodTimer /= 1000000;
 					break;
 				case NANO_SECONDS:
-					temp /= 1000000000;
+					periodTimer /= 1000000000;
 					break;
 				case TICKS:
 					break;
 				default:
 					return 0;//Invalid units
 			}
-			temp *= time;
-			temp /= 2;
-			temp /= prescalerValue[prescaler];
-			temp /= postscalerValue[postscaler];
+			periodTimer *= period;
+			periodTimer /= 2;
+			periodTimer /= timer.prescaler[prescaler];
+			periodTimer /= timer.postscaler[postscaler];
 
-			if(temp < 0xFF)
+			//Check if the period timer is valid
+			if(periodTimer < (1 << timer.resolution))//This will be one more than the maximum valid register according to the resolution
+				finished = 1;
+
+			//We are done, time to get out
+			if(finished)
 				break;
 		}
+		while(postscaler++ < timer.numberOfPostscalers);
+
+		//We are done, time to get out
+		if(finished)
+			break;
 	}
 //	unsigned long targetTime;
 //	unsigned long periodRegister;
