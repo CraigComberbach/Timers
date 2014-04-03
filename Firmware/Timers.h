@@ -59,7 +59,7 @@ struct TIMER_DEFINITION
  * @return 1 = everything was verified and the timer has been properly initialized\
  * 0 = Something failed, either an argument sent was out of range or the timer is unavailable on the current chip
  */
-int Initialize_Timer(enum TIMERS_AVAILABLE timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
+int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void));
 
 /**
  * Initializes Timer 3 as a gated timer

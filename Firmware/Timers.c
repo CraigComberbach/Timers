@@ -79,7 +79,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 	{
 		case 0://Timer1
 			//Change what the prescale and period register should be
-			if(Change_Timer_Period(TIMER1, time, units) == 0)
+			if(Change_Timer_Period(timer, time, units) == 0)
 				return 0;//Time out of range
 
 			#if defined __PIC24F08KL200__
@@ -111,7 +111,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 			return 1;
 		case 1://Timer2
 			//Determine what the prescale and period register should be
-			if(Change_Timer_Period(TIMER2, time, units) == 0)
+			if(Change_Timer_Period(timer, time, units) == 0)
 				return 0;//Time out of range
 
 			#if defined __PIC24F08KL200__
@@ -139,7 +139,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 			return 1;
 		case 2://Timer3
 			//Determine Prescaler and Period Register
-			if(Change_Timer_Period(TIMER3, time, units) == 0)
+			if(Change_Timer_Period(timer, time, units) == 0)
 				return 0;//Time out of range
 
 			#if defined __PIC24F08KL200__
@@ -179,7 +179,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
 				//Determine what the prescale and period register should be
-				if(Change_Timer_Period(TIMER4, time, units) == 0)
+				if(Change_Timer_Period(timer, time, units) == 0)
 					return 0;//Time out of range
 
 				//Timer4 Period Register
@@ -212,47 +212,47 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 
 int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSource, int mode, int triggerPolarity, void (*interruptFunction)(void))
 {
-	//Range checking
-	if((gateSource < 0) || (gateSource > 3))
-		return 0;//Out of range
-	if((mode < 0) || (mode > 1))
-		return 0;//Out of range
-	if((triggerPolarity < 0) || (triggerPolarity > 1))
-		return 0;//Out of range
-
-	//Determine Prescaler and Period Register
-	if(Change_Timer_Period(TIMER3, time, units) == 0)
-		return 0;//Time out of range
-
-	#if defined __PIC24F08KL200__
-		//Timer3 Gate Control Register
-		//Note it is recommended in the spec sheet to intialize this register before T3CON
-		T3GCONbits.TMR3GE		= 1;				//1 = Timer counting is controlled by the Timer3 gate function
-		T3GCONbits.T3GPOL		= triggerPolarity;	//Gate Polarity bit (0 = Active Low, 1 = Active High)
-		T3GCONbits.T3GTM		= 1;				//1 = Timer Gate Toggle mode is enabled
-		T3GCONbits.T3GSPM		= mode;				//Gate Toggle Mode (0 = Timer Gate Single Pulse mode is disabled, 1 = Timer Gate Single Pulse mode is enabled and is controlling Timer3 gate)
-		T3GCONbits.T3GGO		= 1;				//1 = Timer Gate Single Pulse mode is enabled and is controlling Timer3 gate
-//		T3GCONbits.T3GVAL							//Timer Gate Current State bit
-		T3GCONbits.T3GSS		= gateSource;		//Timer Gate Source Select bits (0 = T3G input pin, 1 = TMR2 to match PR2 output, 2 = Comparator 1 output, 3 = Comparator 2 output)
-
-		//Timer3 Control Register
-		T3CONbits.TMR3CS		= 1;				//Clock Source Select bits, 1 = Instruction Clock (Fosc/2)
-//		T3CONbits.T3CKPS		=					//Taken Care of elsewhere
-		T3CONbits.T3OSCEN		= 1;				//SOSC (Secondary Oscillator) is used as a clock source
-//		T3CONbits.NOT_T3SYNC	=					//When TMR3CS = 0x: This bit is ignored; Timer3 uses the internal clock.
-		T3CONbits.TMR3ON		= 1;				//1 = Enables Timer
-
-		//Only setup the interrupts if we have a valid function pointer
-		if(interruptFunction)//Check for null pointer
-		{
-			TMR3_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
-			IEC0bits.T3IE = 1;//Enable the interrupt
-		}
-	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-		return 0;//Timer3 does not exist on this chip, as such, this function call has failed
-	#else
-		#warning "Timer3 is not setup for this chip"
-	#endif
+//	//Range checking
+//	if((gateSource < 0) || (gateSource > 3))
+//		return 0;//Out of range
+//	if((mode < 0) || (mode > 1))
+//		return 0;//Out of range
+//	if((triggerPolarity < 0) || (triggerPolarity > 1))
+//		return 0;//Out of range
+//
+//	//Determine Prescaler and Period Register
+//	if(Change_Timer_Period(timer, time, units) == 0)
+//		return 0;//Time out of range
+//
+//	#if defined __PIC24F08KL200__
+//		//Timer3 Gate Control Register
+//		//Note it is recommended in the spec sheet to intialize this register before T3CON
+//		T3GCONbits.TMR3GE		= 1;				//1 = Timer counting is controlled by the Timer3 gate function
+//		T3GCONbits.T3GPOL		= triggerPolarity;	//Gate Polarity bit (0 = Active Low, 1 = Active High)
+//		T3GCONbits.T3GTM		= 1;				//1 = Timer Gate Toggle mode is enabled
+//		T3GCONbits.T3GSPM		= mode;				//Gate Toggle Mode (0 = Timer Gate Single Pulse mode is disabled, 1 = Timer Gate Single Pulse mode is enabled and is controlling Timer3 gate)
+//		T3GCONbits.T3GGO		= 1;				//1 = Timer Gate Single Pulse mode is enabled and is controlling Timer3 gate
+////		T3GCONbits.T3GVAL							//Timer Gate Current State bit
+//		T3GCONbits.T3GSS		= gateSource;		//Timer Gate Source Select bits (0 = T3G input pin, 1 = TMR2 to match PR2 output, 2 = Comparator 1 output, 3 = Comparator 2 output)
+//
+//		//Timer3 Control Register
+//		T3CONbits.TMR3CS		= 1;				//Clock Source Select bits, 1 = Instruction Clock (Fosc/2)
+////		T3CONbits.T3CKPS		=					//Taken Care of elsewhere
+//		T3CONbits.T3OSCEN		= 1;				//SOSC (Secondary Oscillator) is used as a clock source
+////		T3CONbits.NOT_T3SYNC	=					//When TMR3CS = 0x: This bit is ignored; Timer3 uses the internal clock.
+//		T3CONbits.TMR3ON		= 1;				//1 = Enables Timer
+//
+//		//Only setup the interrupts if we have a valid function pointer
+//		if(interruptFunction)//Check for null pointer
+//		{
+//			TMR3_interruptFunction = interruptFunction;//Setup the function to call in the interrupt routine
+//			IEC0bits.T3IE = 1;//Enable the interrupt
+//		}
+//	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+//		return 0;//Timer3 does not exist on this chip, as such, this function call has failed
+//	#else
+//		#warning "Timer3 is not setup for this chip"
+//	#endif
 
 	//Success
 	return 1;
@@ -511,7 +511,7 @@ int Change_Timer_Period(struct TIMER_DEFINITION timer, unsigned long period, enu
 			periodTimer /= timer.postscaler[postscaler];
 
 			//Check if the period timer is valid
-			if(periodTimer < (1 << timer.resolution))//This will be one more than the maximum valid register according to the resolution
+			if(periodTimer < ((unsigned long)1 << timer.resolution))//This will be one more than the maximum valid register according to the resolution
 				finished = 1;
 
 			//We are done, time to get out
