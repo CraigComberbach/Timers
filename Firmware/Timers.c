@@ -524,227 +524,40 @@ int Change_Timer_Period(struct TIMER_DEFINITION timer, unsigned long period, enu
 		if(finished)
 			break;
 	}
-//	unsigned long targetTime;
-//	unsigned long periodRegister;
-//	unsigned long prescale;
-//	unsigned long postscale;
-//	int additionalScalingRequired = 0;//Logarithmic, 1 = 1k, 2 = 1M, etc
-//
-//	//Determine the target time in nS
-//	switch(units)
-//	{
-//		case SECONDS:
-//			if(time > 4294967)
-//			{
-//				targetTime = time;//Change to the appropriate resolution
-//				additionalScalingRequired = 3;
-//			}
-//			else if(time > 4294)
-//			{
-//				targetTime = time * 1000;//Change to the appropriate resolution
-//				additionalScalingRequired = 2;
-//			}
-//			else if(time > 4)
-//			{
-//				targetTime = time * 1000000;//Change to the appropriate resolution
-//				additionalScalingRequired = 1;
-//			}
-//			else
-//				targetTime = time * 1000000000;//Change to the appropriate resolution
-//			break;
-//		case MILLI_SECONDS:
-//			if(time > 4294967)
-//			{
-//				targetTime = time;//Change to the appropriate resolution
-//				additionalScalingRequired = 2;
-//			}
-//			else if(time > 4294)
-//			{
-//				targetTime = time * 1000;//Change to the appropriate resolution
-//				additionalScalingRequired = 1;
-//			}
-//			else
-//				targetTime = time * 1000000;//Change to the appropriate resolution
-//			break;
-//		case MICRO_SECONDS:
-//			if(time > 4294967)
-//			{
-//				targetTime = time;//Change to the appropriate resolution
-//				additionalScalingRequired = 1;
-//			}
-//			targetTime = time * 1000;//Change to the appropriate resolution
-//			break;
-//		case NANO_SECONDS:
-//			targetTime = time * 1;//Change to the appropriate resolution
-//			break;
-//		case TICKS:
-//			targetTime = time;//Change to the appropriate resolution
-//			break;
-//		default:
-//			return 0;//Invalid units
-//	}
-//
-//	//Determine & Set the period, prescalar and postscalar of the timer
-//	switch(timer)
-//	{
-//		case 0://Timer 1
-//			//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-//			prescale = targetTime;		//Assign time to beat
-//			prescale /= 0xFFFF;			//Divide by a maxed out period register
-//			if(additionalScalingRequired--)
-//				prescale *= 1000;		//Multiply by the 1k to get resolution back
-//			prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
-//			for(;additionalScalingRequired != 0; additionalScalingRequired--)
-//				prescale *= 1000;		//Multiply by the 1k to get resolution back
-//
-//			if(prescale == 0)
-//			{
-//				prescale = 0;//1:1
-//				periodRegister = targetTime;
-//				periodRegister /= 1 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-//			}
-//			else if((prescale > 0) && (prescale <= 8))
-//			{
-//				prescale = 1;//1:8
-//				periodRegister = targetTime;
-//				periodRegister /= 8 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-//			}
-//			else if((prescale > 8) && (prescale <= 64))
-//			{
-//				prescale = 2;//1:64
-//				periodRegister = targetTime;
-//				periodRegister /= 64 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-//			}
-//			else if((prescale > 64) && (prescale <= 256))
-//			{
-//				prescale = 3;//1:256
-//				periodRegister = targetTime;
-//				periodRegister /= 256 * MIN_PERIOD_NS;//Divide by prescaler and the miniumum period
-//			}
-//			else
-//				return 0;//Out of range with a maxed out prescalar AND period register
-//
-//			//Make it official
-//			PR1 = periodRegister;		//The value to trigger an interrupt at
-//			T1CONbits.TCKPS	= prescale;	//Timer1 Input Clock Prescale Select bits (0 = 1:1, 1 = 1:8, 2 = 1:64, 3 = 1:256)
-//			return 1;//Success
-//		case 1://Timer 2
-//			//Determine postscaler and Period Register - Attempt to minimize the postscalar to retain resolution
-//			postscale = targetTime;		//Assign time to beat
-//			postscale /= 0xFF;			//Divide by a maxed out period register
-//			postscale /= 16;			//Divide by a maxed out prescaler
-//			postscale /= MIN_PERIOD_NS;	//Divide by the minimum period
-//			postscale++;				//Add one to get the correct post scalar
-//
-//			//Range check
-//			if(postscale > 16)
-//				return 0;//Out of range with a maxed out postscalar AND prescalar AND period register
-//
-//			//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-//			prescale = targetTime;		//Assign time to beat
-//			prescale /= 0xFF;			//Divide by a maxed out period register
-//			prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
-//			prescale /= postscale;		//Divide by already determined postscale value
-//			if(prescale == 0)
-//			{
-//				prescale = 0;//1:1
-//				periodRegister = targetTime;
-//				periodRegister /= 1 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-//			}
-//			else if((prescale > 0) && (prescale <= 4))
-//			{
-//				prescale = 1;//1:4
-//				periodRegister = targetTime;
-//				periodRegister /= 4 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-//			}
-//			else if((prescale > 4) && (prescale <= 16))
-//			{
-//				prescale = 2;//1:16
-//				periodRegister = targetTime;
-//				periodRegister /= 16 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-//			}
-//			else
-//				return 0;//Something went wrong, we should be in range...?
-//
-//			//Make it official
-//			PR2					= periodRegister;	//The value to trigger an interrupt at
-//			T2CONbits.T2OUTPS	= postscale;		//Timer2 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
-//			T2CONbits.T2CKPS	= prescale;			//Timer2 Output Prescale Select bits (0 = 1, 1 = 4, 2 = 16, 3 = undefined)
-//
-//			return 1;//Success
-//		case 2://Timer 3
-//			//Determine Prescaler - Attempt to minimize the prescalar to retain resolution
-//			Change_Timer_Time(TIMER3, time, units);
-//			prescale = targetTime;		//Assign time to beat
-//			prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
-//			if(prescale == 0)
-//				prescale = 0;//1:1
-//			else if((prescale > 0) && (prescale <= 2))
-//				prescale = 1;//1:2
-//			else if((prescale > 2) && (prescale <= 4))
-//				prescale = 2;//1:4
-//			else if((prescale > 4) && (prescale <= 8))
-//				prescale = 3;//1:8
-//			else
-//				return 0;//Out of range with a maxed out prescalar AND period register
-//
-//			//Make it official
-//			T3CONbits.T3CKPS = prescale;	//Timer3 Input Clock Prescale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:4, 3 = 1:8)
-//
-//			return 1;//Success
-//		case 3://Timer 4
-//			#if defined __PIC24F08KL200__
-//				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
-//			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-//				//Determine postscaler and Period Register - Attempt to minimize the postscalar to retain resolution
-//				postscale = targetTime;		//Assign time to beat
-//				postscale /= 0xFF;			//Divide by a maxed out period register
-//				postscale /= 16;			//Divide by a maxed out prescaler
-//				postscale /= MIN_PERIOD_NS;	//Divide by the minimum period
-//				postscale++;				//Add one to get the correct post scalar
-//
-//				//Range check
-//				if(postscale > 16)
-//					return 0;//Out of range with a maxed out postscalar AND prescalar AND period register
-//
-//				//Determine Prescaler and Period Register - Attempt to minimize the prescalar to retain resolution
-//				prescale = targetTime;		//Assign time to beat
-//				prescale /= 0xFF;			//Divide by a maxed out period register
-//				prescale /= MIN_PERIOD_NS;	//Divide by the minimum period
-//				prescale /= postscale;		//Divide by already determined postscale value
-//				if(prescale == 0)
-//				{
-//					prescale = 0;//1:1
-//					periodRegister = targetTime;
-//					periodRegister /= 1 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-//				}
-//				else if((prescale > 0) && (prescale <= 4))
-//				{
-//					prescale = 1;//1:4
-//					periodRegister = targetTime;
-//					periodRegister /= 4 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-//				}
-//				else if((prescale > 4) && (prescale <= 16))
-//				{
-//					prescale = 2;//1:16
-//					periodRegister = targetTime;
-//					periodRegister /= 16 * MIN_PERIOD_NS * postscale;//Divide by prescaler, postscaler, and the miniumum period
-//				}
-//				else
-//					return 0;//Something went wrong, we should be in range...?
-//
-//				//Make it official
-//				PR4					= periodRegister;	//The value to trigger an interrupt at
-//				T4CONbits.T4OUTPS	= postscale;		//Timer4 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
-//				T4CONbits.T4CKPS	= prescale;			//Timer4 Clock Prescale Select bits (0 = 1:1, 1 = 1:4, 2 = 1:16, 3 = Undefined)
-//
-//				return 1;//Success
-//			#else
-//				#warning "Timer4 is not setup for this chip"
-//			#endif
-//		default:
-//			return 0;//Invalid Timer
-//	}
+
+	//Set the Pre/Post scalers and period registers
+	switch(timer.timer)
+	{
+		case 0://Timer 1
+			PR1 = periodTimer;				//The value to trigger an interrupt at
+			T1CONbits.TCKPS	= prescaler;	//Timer1 Input Clock Prescale Select bits (0 = 1:1, 1 = 1:8, 2 = 1:64, 3 = 1:256)
+
+			return 1;//Success
+		case 1://Timer 2
+			PR2					= periodTimer;	//The value to trigger an interrupt at
+			T2CONbits.T2OUTPS	= postscaler;	//Timer2 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
+			T2CONbits.T2CKPS	= prescaler;	//Timer2 Output Prescale Select bits (0 = 1, 1 = 4, 2 = 16, 3 = undefined)
+
+			return 1;//Success
+		case 2://Timer 3
+			T3CONbits.T3CKPS = prescaler;	//Timer3 Input Clock Prescale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:4, 3 = 1:8)
+
+			return 1;//Success
+		case 3://Timer 4
+			#if defined __PIC24F08KL200__
+				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
+			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				PR4					= periodTimer;	//The value to trigger an interrupt at
+				T4CONbits.T4OUTPS	= postscaler;	//Timer4 Output Postscale Select bits (0 = 1:1, 1 = 1:2, 2 = 1:3,... 15 = 1:16)
+				T4CONbits.T4CKPS	= prescaler;	//Timer4 Clock Prescale Select bits (0 = 1:1, 1 = 1:4, 2 = 1:16, 3 = Undefined)
+
+				return 1;//Success
+			#else
+				#warning "Timer4 is not setup for this chip"
+			#endif
+		default:
+			return 0;//Invalid Timer
+	}
 
 	//How did we get here?
 	return 0;
