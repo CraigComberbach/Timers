@@ -53,6 +53,7 @@ void (*TMR1_interruptFunction)(void) = (void *)0;
 void (*TMR2_interruptFunction)(void) = (void *)0;
 void (*TMR3_interruptFunction)(void) = (void *)0;
 void (*TMR4_interruptFunction)(void) = (void *)0;
+int (*FatalErrorHandling)(int)	= (void *)0;
 
 /*************Function  Prototypes***************/
 
@@ -71,6 +72,11 @@ void (*TMR4_interruptFunction)(void) = (void *)0;
 /************* Device Definitions ***************/
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
+
+int Setup_Fatal_Error_Handling(int (*fatalErrorHandlerRoutine)(int))
+{
+	FatalErrorHandling = fatalErrorHandlerRoutine;
+}
 
 int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS units, void (*interruptFunction)(void))
 {
@@ -102,6 +108,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 					IEC0bits.T1IE = 1;//Enable the interrupt
 				}
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				FatalErrorHandling(TIMER_LIBRARY);
 				return 0;//Timer1 does not exist on this chip, as such, this function call has failed
 			#else
 				#warning "Timer1 is not setup for this chip"
@@ -130,6 +137,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 					IEC0bits.T2IE = 1;//Enable the interrupt
 				}
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				FatalErrorHandling(TIMER_LIBRARY);
 				return 0;//Timer2 does not exist on this chip, as such, this function call has failed
 			#else
 				#warning "Timer2 is not setup for this chip"
@@ -167,6 +175,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 					IEC0bits.T3IE = 1;//Enable the interrupt
 				}
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
+				FatalErrorHandling(TIMER_LIBRARY);
 				return 0;//Timer3 does not exist on this chip, as such, this function call has failed
 			#else
 				#warning "Timer3 is not setup for this chip"
@@ -176,6 +185,7 @@ int Initialize_Timer(struct TIMER_DEFINITION timer, int time, enum TIMER_UNITS u
 			return 1;
 		case 3://Timer4
 			#if defined __PIC24F08KL200__
+				FatalErrorHandling(TIMER_LIBRARY);
 				return 0;//Timer4 does not exist on this chip, as such, this function call has failed
 			#elif defined PLACE_MICROCHIP_PART_NAME_HERE
 				//Determine what the prescale and period register should be

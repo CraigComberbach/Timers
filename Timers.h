@@ -112,4 +112,6 @@ int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
  */
 int Change_Timer_Period(struct TIMER_DEFINITION timer, unsigned long time, enum TIMER_UNITS units);
 
+int Setup_Fatal_Error_Handling(int (*fatalErrorHandlerRoutine)(int));
+
 #endif	/* TIMERS_H */
