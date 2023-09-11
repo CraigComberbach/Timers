@@ -1,39 +1,31 @@
 /**************************************************************************************************
-Authours:				Craig Comberbach
-Target Hardware:		PIC24F
-Chip resources used:	All available Timers
-Code assumptions:
-Purpose:				Allow access and control over the available timers. This includes handling intialization, temporary disabling/reenabling, interrupt control, and any other functionality
-
 Version History:
-v0.3.0	2013-08-29  Craig Comberbach
-	Compiler: C30 v3.31	IDE: MPLABx 1.80	Tool: RealICE	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
- 	Added Change Timer Trigger function to allow the timer to be enabled/disabled on the fly
-	Added functionality to allow polling of timers
-	Added functionality to allow changing the timer period on the fly
-	Timer initialization has been made more generic, it is now done through a single function
-	*BUG FIX* Timers now round properly when they are are auto-magically setting the period register
-v0.2.0	2013-08-08  Craig Comberbach
-	Compiler: C30 v3.31	IDE: MPLABx 1.85	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 7 64 bit Home Premium SP1
-	Prescaler, Postscaler and Period Registers are all handled auto-magically on Timers 1/2/3/4
-		-This requires knowledge of the speed of the system clock (FOSC)
-		-The code optimizes for a period register that has the finest resolution
-v0.1.0	2013-08-08  Craig Comberbach
-	Compiler: C30 v3.31	IDE: MPLABx 1.85	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 7 64 bit Home Premium SP1
-	Timers 1-4 initialization and interrupts are implemented for the PIC24F08KL200 chip
-		-Timer 3 is broken into two initializations, a gated and a standard function. I hope to combine these in the future
-	Interrupts are enabled and the function pointer are only set if the pointer sent is not a null pointer
-	Sentinels are setup to check the validity of the arguments sent to the initialize routines
-	Added PRx values to initialization, they are set to their default max (I want to handle them auto-magically along with pre/post scalers in the future
-v0.0.0	2013-07-20  Craig Comberbach
-	Compiler: C30 v3.31	IDE: MPLABx 1.80	Tool: RealICE	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
-	First version
+v1.0.0	2023-09-11	Craig Comberbach	Compiler: XC16 v2.00
+ * 
+v0.3.0	2013-08-29  Craig Comberbach	Compiler: C30 v3.31
+ * Added Change Timer Trigger function to allow the timer to be enabled/disabled on the fly
+ * Added functionality to allow polling of timers
+ * Added functionality to allow changing the timer period on the fly
+ * Timer initialization has been made more generic, it is now done through a single function
+ *BUG FIX* Timers now round properly when they are auto-magically setting the period register
+v0.2.0	2013-08-08  Craig Comberbach	Compiler: C30 v3.31
+ * Prescaler, Postscaler and Period Registers are all handled auto-magically on Timers 1/2/3/4
+ * 	-This requires knowledge of the speed of the system clock (FOSC)
+ * 	-The code optimizes for a period register that has the finest resolution
+v0.1.0	2013-08-08  Craig Comberbach	Compiler: C30
+ * Timers 1-4 initialization and interrupts are implemented for the PIC24F08KL200 chip
+ * 	-Timer 3 is broken into two initializations, a gated and a standard function. I hope to combine these in the future
+ * Interrupts are enabled and the function pointer are only set if the pointer sent is not a null pointer
+ * Sentinels are setup to check the validity of the arguments sent to the initialize routines
+ * Added PRx values to initialization, they are set to their default max (I want to handle them auto-magically along with pre/post scalers in the future
+v0.0.0	2013-07-20  Craig Comberbach	Compiler: C30 v3.31
+ * First version
 **************************************************************************************************/
 /*************    Header Files    ***************/
 #include "Config.h"
 #include "Timers.h"
 
-/************* Semantic Versioning***************/
+/*************Semantic  Versioning***************/
 #if TIMERS_MAJOR != 0
 	#error "Timers.c has had a change that loses some previously supported functionality"
 #elif TIMERS_MINOR != 3
@@ -42,12 +34,12 @@ v0.0.0	2013-07-20  Craig Comberbach
 	#error "Timers.c has had a bug fix, you should check to see that we weren't relying on a bug for functionality"
 #endif
 
-/************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define MIN_PERIOD_NS (1000000000/(FOSC_HZ/2))	//Period of the instruction clock pulse in nanoseconds
 
 /*************    Enumeration     ***************/
-/***********State Machine Definitions*************/
+/***********  Structure Definitions  ************/
+/***********State Machine Definitions************/
 /*************  Global Variables  ***************/
 void (*TMR1_interruptFunction)(void) = (void *)0;
 void (*TMR2_interruptFunction)(void) = (void *)0;
@@ -56,7 +48,6 @@ void (*TMR4_interruptFunction)(void) = (void *)0;
 int (*FatalErrorHandling)(int)	= (void *)0;
 
 /*************Function  Prototypes***************/
-
 #if defined __PIC24F08KL200__
 	void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt(void);
 	void __attribute__ ((interrupt, no_auto_psv)) _T2Interrupt(void);
@@ -68,11 +59,8 @@ int (*FatalErrorHandling)(int)	= (void *)0;
 	void __attribute__ ((interrupt, no_auto_psv)) _T3Interrupt(void);
 	void __attribute__ ((interrupt, no_auto_psv)) _T4Interrupt(void);
 #endif
-
-/************* Device Definitions ***************/
-/************* Module Definitions ***************/
-/************* Other  Definitions ***************/
-
+	
+/************* Main Body Of Code  ***************/
 int Setup_Fatal_Error_Handling(int (*fatalErrorHandlerRoutine)(int))
 {
 	FatalErrorHandling = fatalErrorHandlerRoutine;
@@ -268,7 +256,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
 	return 1;
 }
 
-int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState)
+int Change_Timer_Trigger(enum TIMER_DEFINITIONS timer, int newState)
 {
 	//Range check
 	if((timer < 0 ) || (timer >= NUMBER_OF_AVAILABLE_TIMERS))
@@ -304,7 +292,7 @@ int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState)
 	return 1;
 }
 
-int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units)
+int Current_Timer(enum TIMER_DEFINITIONS timer, enum TIMER_UNITS units)
 {
 	long time;
 

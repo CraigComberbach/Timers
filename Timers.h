@@ -1,7 +1,28 @@
 #ifndef TIMERS_H
 #define	TIMERS_H
 
-/************* Semantic Versioning***************/
+/***********Add to config file header************/
+/*
+	//Timer Driver Library
+	#define TIMERS_MAJOR 0
+	#define TIMERS_MINOR 3
+	#define TIMERS_PATCH 0
+*/
+
+/*
+enum TIMER_DEFINITIONS
+{
+	TIMER_,
+	NUMBER_OF_AVAILABLE_TIMERS
+};
+*/
+
+/***************Add to config file***************/
+//#ifndef TIMERS_LIBRARY
+//	#error "You need to include the Timer Control Driver Library for this code to compile"
+//#endif
+
+/*************Semantic  Versioning***************/
 #define TIMERS_LIBRARY
 
 /*************   Magic  Numbers   ***************/
@@ -10,23 +31,6 @@
 #define TIMER_OFF	0
 
 /*************    Enumeration     ***************/
-enum TIMERS_AVAILABLE
-{
-	#if defined __PIC24F08KL200__
-		TIMER1,
-		TIMER2,
-		TIMER3,
-	#elif defined PLACE_MICROCHIP_PART_NAME_HERE
-		TIMER1,
-		TIMER2,
-		TIMER3,
-		TIMER4,
-	#else
-		#warning "This chip is not setup for timers yet"
-	#endif
-	NUMBER_OF_AVAILABLE_TIMERS
-};
-
 enum TIMER_UNITS
 {
 	SECONDS,
@@ -36,10 +40,11 @@ enum TIMER_UNITS
 	TICKS
 };
 
-/***********  Structure Definitions  ************/
+/***********State Machine Definitions************/
+/*************Function  Prototypes***************/
 struct TIMER_DEFINITION
 {
-	enum TIMERS_AVAILABLE timer;
+	enum TIMER_DEFINITIONS timer;
 	char resolution;
 	char numberOfPrescalers;
 	int prescaler[4];//Unused prescalers need to be non-zero
@@ -47,8 +52,8 @@ struct TIMER_DEFINITION
 	int postscaler[16];//Unused postscalers need to be non-zero
 };
 
-/***********State Machine Definitions************/
-/*************Function  Prototypes***************/
+
+
 /**
  * Initializes the specified timer to have a set period
  * @param timer The target timer, use the enum TIMERS_AVAILABLE
@@ -92,7 +97,7 @@ int Initialize_TMR3_As_Gated_Timer(int time, enum TIMER_UNITS units, int gateSou
  * @return 1 = The timer was succefully changed\
  * 0 = Either the timer was out of range or the new state was invalid
  */
-int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState);
+int Change_Timer_Trigger(enum TIMER_DEFINITIONS timer, int newState);
 
 /**
  * Allows the reading of the timer value
@@ -100,7 +105,7 @@ int Change_Timer_Trigger(enum TIMERS_AVAILABLE timer, int newState);
  * @param timeUnits The units to use (S, mS, uS, nS). Use the enum TIMER_UNITS to correctly specify
  * @return The current timer value in the units specified
  */
-int Current_Timer(enum TIMERS_AVAILABLE timer, enum TIMER_UNITS units);
+int Current_Timer(enum TIMER_DEFINITIONS timer, enum TIMER_UNITS units);
 
 /**
  * Allow the lengthening or shortening of the timers length
